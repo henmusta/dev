@@ -281,10 +281,9 @@ class Produk extends GT_Controller {
 			$html = $this->load->view($this->module['url'] . '/html/barcode_print/multiple', $data, true);
 		}
 		// print_r($data['barcode']);
-
 		$dompdf->loadHtml($html);
 	
-		$dompdf->setPaper('A8');
+		$dompdf->setPaper('A6', 'potrait');
 
 		$dompdf->render();
 		
