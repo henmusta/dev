@@ -1,0 +1,77 @@
+.form-control::-webkit-input-placeholder{
+	color:#ccc;
+	opacity:1
+}
+.form-control::-moz-placeholder{
+	color:#ccc;
+	opacity:1
+}
+.form-control:-ms-input-placeholder{color:#ccc;
+	opacity:1
+}
+.form-control::-ms-input-placeholder{color:#ccc;
+	opacity:1
+}
+.form-control::placeholder{color:#ccc;
+	opacity:1
+}
+
+.table-balance-sheet {
+	
+}
+.table-balance-sheet tr.row-separator td {
+	height:2rem;
+}
+.table-balance-sheet th,
+.table-balance-sheet td {
+	padding:0px;
+	text-align:right;
+	border-width:0px;
+	border-color:transparent;
+}
+.table-balance-sheet th:first-child,
+.table-balance-sheet td:first-child {
+	text-align:left;
+}
+
+.table-balance-sheet tr.level-1 td:first-child {
+	padding-left:20px;
+}
+.table-balance-sheet tr.level-2 td:first-child {
+	padding-left:40px;
+}
+.table-balance-sheet tr.level-3 td:first-child {
+	padding-left:60px;
+}
+.table-balance-sheet tr.level-4 td:first-child {
+	padding-left:80px;
+}
+
+
+.table-balance-sheet tr.group,
+.table-balance-sheet tr.group-total,
+.table-balance-sheet tr.grand-total {
+	font-weight:bold;
+}
+
+.table-balance-sheet tr.account-total td {
+	border-top:1px solid #333333;
+}
+.table-balance-sheet tr.account-total td:first-child {
+	text-align:right;
+	font-style: italic;
+}
+.table-balance-sheet tr.group-total td {
+	border-width:0;
+	border-color:#333;
+	border-top-width:1px;
+	border-top-style:solid;
+}
+.table-balance-sheet tr.grand-total td {
+	border-width:0;
+	border-color:#333;
+	border-top-width:1px;
+	border-top-style:solid;
+	border-bottom-width:3px;
+	border-bottom-style:double;
+}

@@ -1,0 +1,43 @@
+<div class="content">
+	<div class="block">
+		<div class="block-header">
+			<h3 class="block-title">Data <?= $module['name'];?></h3>
+			<input type="hidden" id="id_cabang" name="filter[id_cabang]" value="<?php echo $this->user->id_cabang;?>">
+			<div class="input-group input-group-sm" style="width:240px;">
+				<div class="input-group-prepend">
+					<div class="input-group-text">Tgl Input</div>
+				</div>
+				<input type="text" class="form-control form-control-sm datepicker d-inline-block m-0" value="<?= date('Y-m-d');?>" name="filter[tgl_buat]">
+			</div>
+			<div class="block-options">
+				<div class="btn-group btn-group-sm">
+					<a href="javascript:history.back();" class="btn btn-outline-secondary"><i class="fa fa-reply"></i> Kembali</a>
+					<a href="<?= $module['url'];?>/insert"  data-pk="<?php echo $this->user->id_cabang;?>" class="btn btn-outline-primary"><i class="fa fa-plus"></i> Tambah Baru</a>
+				</div>
+			</div>
+		</div>
+		<div class="block-content">
+			<div class="table-responsive">
+				<table id="dt" class="table table-sm table-vcenter table-bordered" width="100%">
+					<thead>
+						<tr>
+							<th>No</th>
+							<th>Tgl Input</th>
+							<th>Tgl Nota</th>
+							<th>Supplier</th>
+							<th>No.Nota</th>
+							<th>Nominal</th>
+							<th>Diskon</th>
+							<th>Tagihan</th>
+							<th>Dibayarkan</th>
+							<th>Status Ro</th>
+							<th>Sisa</th>
+							<th>#</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

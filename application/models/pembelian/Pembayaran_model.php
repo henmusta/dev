@@ -1,0 +1,481 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Pembayaran_model extends CI_Model {
+	private $module = [
+		'name' 	=> 'Pembayaran Pembelian',
+		'url'	=> 'pembelian/pembayaran',
+	];
+	public function __construct(){
+		parent::__construct();
+	}
+	private function is_unique_field($column_name, $value, $pk=NULL){
+		$query = "SELECT COUNT(`id`) AS `total` FROM `pembayaran` WHERE `". $column_name ."`='". $this->db->escape_str($value) ."' ";
+		if(!empty($pk)){
+			$query .= " AND `id`!='" . $pk ."'";
+		}
+		$result = $this->db->query($query)->row();
+		return isset($result->total) && $result->total > 0 ? FALSE : TRUE;
+	}
+	public function single($pk){
+		$row = $this->db->get_where('pembayaran',array('id'=>$pk))->row();
+		if(isset($row->id) && !empty($row->id) ){
+			$row->pembelian = $this->db->get_where('pembelian',array('id'=>$row->id_pembelian))->row();
+			$row->pemasok 	= $this->db->get_where('pemasok',array('id'=>$row->id_pemasok))->row();
+			$row->nota =  $this->db->select('*, pembelian.tgl_buat as tgl_buat, pemasok.nama as nama_p, pembelian.total_pembayaran as total')
+									->from('pembayaran')
+									->join('pembelian','pembelian.id=pembayaran.id_pembelian','left')
+									->join('rincian_pembayaran','pembayaran.id=rincian_pembayaran.id_pembayaran','left')
+									->join('pemasok','pemasok.id=pembelian.id_pemasok','left')
+									->group_by('pembelian.id')
+									->where(array('pembayaran.id_pembelian'=>$row->pembelian->id))->get()->result();
+			$row->rincian 	= $this->db
+				->select('rincian_pembayaran.*,
+					
+					akun.nama AS nama_akun,
+					giro.nomor AS nomor_giro
+				')
+				->from('rincian_pembayaran')
+				->join('akun','akun.id=rincian_pembayaran.id_akun','left')
+				->join('giro','giro.id=rincian_pembayaran.id_giro','left')
+				->join('pembayaran','pembayaran.id=rincian_pembayaran.id_pembayaran','left')
+				->where(['rincian_pembayaran.id_pembayaran'=>$row->id])->get()->result();
+			return $row;
+		}
+		return (object)[]; 
+	}
+
+	public function get_pembelian($config = []){
+		extract($config);
+		$pk = isset($params['pk']) ? (int)$params['pk']:0;
+
+		$pembelian = (object)[
+			'total_tagihan'=>0,
+			'total_pembayaran'=>0,
+			'sisa_tagihan'=>0
+		];
+		if($result = $this->db
+		->select('*,
+					pembayaran.id as id_pembayaran,
+					pembelian.tgl_buat as tgl_buat
+				')
+		->from('pembelian')
+		->join('pembayaran','pembayaran.id_pembelian=pembelian.id','left')
+		->where(['pembelian.id'=>$pk])->get()){
+			return $result->row();
+		}
+		return $pembelian;
+	} 
+
+	public function datatable($config = array()){		
+		extract($config);
+		$columns 			= array('pembayaran.id','`pembayaran`.`tgl_bayar`', 'pembelian.tgl_buat', '`pemasok`.`nama`', '`pembayaran`.`nomor`', '`pembayaran`.`nominal`', '`rincian_pembayaran`.`metode`');
+		$select_total 		= "SELECT COUNT(`pembayaran`.`id`) AS `total` ";
+		$select_filtered	= "SELECT FOUND_ROWS() AS `total` ";
+		$select 			= "
+		SELECT SQL_CALC_FOUND_ROWS `pembayaran`.*, 
+			`pemasok`.`kode` AS `kode_pemasok`, 
+			`pemasok`.`nama` AS `nama_pemasok`,
+			 pembelian.tgl_buat AS 'tgl_buat',
+			 pembelian.id AS 'idp',
+			`pembelian`.`nomor` AS `nomor_pembelian`,
+			 rincian_pembayaran.`metode` AS metode
+		";
+		$from 				= "
+		FROM `pembayaran` 
+			LEFT JOIN `pemasok` ON `pemasok`.`id`=`pembayaran`.`id_pemasok`
+			LEFT JOIN `pembelian` ON `pembelian`.`id`= `pembayaran`.`id_pembelian`
+			LEFT JOIN  rincian_pembayaran ON pembayaran.id = rincian_pembayaran.`id_pembayaran`
+		";
+		$where 				= "WHERE `pembayaran`.`id` IS NOT NULL AND `gabung_faktur`=0  and pembayaran.gabung_nota is null ";
+		$group_by 			= "";
+		$having 			= "";
+		$order_by 			= "order by pembayaran.tgl_bayar ";
+		$limit 				= "";
+
+		if ( isset( $params["filter"]["id_cabang"] )  && !empty($params["filter"]["id_cabang"]) ) {
+			$where .= "  AND  pembelian.id_cabang =  ". $params["filter"]["id_cabang"] ." ";
+		}
+		if( isset($params["search"]["value"]) && !empty($params["search"]["value"]) ) {
+			$q		= $this->db->escape_str(strip_tags($params["search"]["value"]));
+			$fields = array();
+			foreach( $columns AS $col ){
+				array_push($fields, "(".$col." LIKE '%".$q."%')");
+			}
+			$having = " HAVING " . implode(" OR ",$fields) . " "; 
+			unset($fields,$col,$q);
+		}
+		if( isset($params['order'][0]['column']) ){
+			$field 	= $columns[$params["order"][0]["column"]];
+			$dir 	= strtoupper($this->db->escape_str($params["order"][0]["dir"]));
+			$order_by = " ORDER BY " . $field . " " . $dir . " "; 
+			unset($field,$dir);
+		}
+		if ( isset( $params["start"] ) && $params["length"] != '-1' ) {
+			$limit = "LIMIT " . $params["start"] . "," . $params["length"];
+		}
+
+		$totalData 		= $this->db->query($select_total . $from . $where . ";")->row_array();
+		$results 		= $this->db->query($select . $from . $where . $group_by . $having . $order_by . $limit . ";")->result_array();
+		$totalFiltered 	= $this->db->query($select_filtered . ";")->row_array();
+		unset($select_filtered, $select_total, $select, $from, $where, $group_by, $having, $order_by, $limit);
+		unset($row,$photo,$status,$contact);
+		$data = array();
+		foreach($results AS $row){
+			array_push($data,$row);
+		}
+		return array(
+			"draw" 				=> intval( isset($params['draw']) ? $params['draw'] : 1 ),
+			"recordsTotal" 		=> intval( isset($totalData['total']) ? $totalData['total'] : 0 ),
+			"recordsFiltered" 	=> intval( isset($totalFiltered['total']) ? $totalFiltered['total'] : 0 ),
+			"data"				=> $data 
+		); unset($results,$params,$totalData,$totalFiltered,$data);
+	}
+	public function select2($config = array()){
+		extract($config);
+
+		$row_per_page 	= isset($row_per_page) ? $row_per_page : 10;
+		$select_total 	= "SELECT COUNT(`id`) AS `total` ";
+		$select_data	= "SELECT *, `id` AS `id`, CONCAT(`id`,' || ',`nama`) AS `text` ";
+		$from 			= "FROM `pembayaran` ";
+		$where 			= "WHERE `id` IS NOT NULL ";
+		$having 		= "";
+
+		$term = isset($params['term']) ? $this->db->escape_str($params['term']) : (isset($params['q']) ? $this->db->escape_str($params['q']) : null);
+		if(isset($term) && !empty($term)){
+			$where .= " AND (`id` LIKE '%". $term ."%' OR `nama` LIKE '%". $term ."%') ";
+		}
+
+		$order_by 		= "ORDER BY `id` ASC ";
+		$result_total	= $this->db->query($select_total . $from . $where . $having . ";");
+		$total_data 	= $result_total->row()->total;
+		$total_page		= ceil((int)$total_data/$row_per_page);
+		$page 			= isset($params['page']) ? (int)$params['page'] : 1;
+		$offset 		= (($page - 1) * $row_per_page);
+		$result_total->free_result();
+		$data = $this->db->query($select_data . $from . $where . $having . $order_by . "LIMIT ". $row_per_page ." OFFSET ". $offset .";");
+		return array( 
+			'results' 		=> $data->result_array(),
+			'pagination' 	=> array('more' => ($page < $total_page)) 
+		);
+		$data->free_result();
+	}
+	public function select2_pemasok($config = array()){
+		extract($config);
+
+		$row_per_page 	= isset($row_per_page) ? $row_per_page : 10;
+		$select_total 	= "SELECT COUNT(DISTINCT(pemasok.`id`)) AS `total` ";
+		$select_data	= "SELECT *, pemasok.id as ids ";
+		$from 			= "FROM `pemasok` left join pembelian on pembelian.id_pemasok = pemasok.id ";
+		
+		$where 			= "WHERE pemasok.`id` IS NOT NULL ";
+
+		$term = isset($params['term']) ? $this->db->escape_str($params['term']) : (isset($params['q']) ? $this->db->escape_str($params['q']) : null);
+		if(isset($term) && !empty($term)){
+			$where .= " AND (pemasok.`id` LIKE '%". $term ."%' OR pemasok.`nama` LIKE '%". $term ."%' OR pemasok.`kode` LIKE '%". $term ."%') ";
+		}
+
+		if(isset($params['id_cabang']) && !empty($params['id_cabang'])){
+			$where .= " AND (`pembelian`.`id_cabang` = " . $params['id_cabang'] . ") ";
+		}
+
+		$group_by 		= "group by pemasok.id  ";
+		$order_by 		= "ORDER by pemasok.id ASC ";
+		$result_total	= $this->db->query($select_total . $from . $where .  $group_by . ";");
+		$total_data 	= $result_total->row()->total;
+		$total_page		= ceil((int)$total_data/$row_per_page);
+		$page 			= isset($params['page']) ? (int)$params['page'] : 1;
+		$offset 		= (($page - 1) * $row_per_page);
+		$result_total->free_result();
+		$data = $this->db->query($select_data . $from . $where . $group_by . $order_by ." LIMIT ". $row_per_page ." OFFSET ". $offset .";");
+		return array( 
+			'results' 		=> $data->result_array(),
+			'pagination' 	=> array('more' => ($page < $total_page)) 
+		);
+		$data->free_result();
+	}
+	
+	public function select2_akun($params = []){
+		extract($params);
+		$group = isset($params['metode']) ? strtolower($params['metode']) : '';
+		$response = [];
+		switch($group){
+			case 'giro':
+			case 'debit':
+				$response = $this->db->get_where('akun', ['induk'=>2])->result();
+			break;
+			case 'tunai':
+			default :
+				$response = $this->db->get_where('akun', ['induk'=>1])->result();
+		}
+		return $response;
+	}
+	public function select2_giro($config = array()){
+		extract($config);
+
+		$row_per_page 	= isset($row_per_page) ? $row_per_page : 10;
+		$select_total 	= "SELECT COUNT(DISTINCT(`id`)) AS `total` ";
+		$select_data	= "SELECT * ";
+		$from 			= "FROM `giro` ";
+		$where 			= "WHERE `id` NOT IN (
+			SELECT `id_giro` FROM `rincian_pembayaran` WHERE `id_giro` IS NOT NULL OR `id_giro` != 0
+		) AND  giro.id_cabang =  ". $params['id_cabang'] ." ";
+
+		$term = isset($params['term']) ? $this->db->escape_str($params['term']) : (isset($params['q']) ? $this->db->escape_str($params['q']) : null);
+		if(isset($term) && !empty($term)){
+			$where .= " AND (`id` LIKE '%". $term ."%' OR `nomor` LIKE '%". $term ."%') ";
+		}
+		$group_by 		= "GROUP BY `id` ";
+		$order_by 		= "ORDER BY `id` ASC ";
+		$result_total	= $this->db->query($select_total . $from . $where . ";");
+		$total_data 	= $result_total->row()->total;
+		$total_page		= ceil((int)$total_data/$row_per_page);
+		$page 			= isset($params['page']) ? (int)$params['page'] : 1;
+		$offset 		= (($page - 1) * $row_per_page);
+		$result_total->free_result();
+		$data = $this->db->query($select_data . $from . $where . $group_by . $order_by ." LIMIT ". $row_per_page ." OFFSET ". $offset .";");
+		return array( 
+			'results' 		=> $data->result_array(),
+			'pagination' 	=> array('more' => ($page < $total_page)) 
+		);
+		$data->free_result();
+	}
+	public function select2_pembelian($config = array()){
+		extract($config);
+
+		$row_per_page 	= isset($row_per_page) ? $row_per_page : 10;
+		$select_total 	= "SELECT COUNT(DISTINCT(`id`)) AS `total` ";
+		$select_data	= "SELECT *, `nomor` AS `text` ";
+		$from 			= "FROM `pembelian` ";
+		$where 			= "WHERE `id` IS NOT NULL AND `sisa_tagihan` > 0 ";
+		if(isset($params['id_pemasok']) && !empty($params['id_pemasok'])){
+			$where .= " AND (`id_pemasok` = ". (int)$params['id_pemasok']  .") ";
+		}
+		$term = isset($params['term']) ? $this->db->escape_str($params['term']) : (isset($params['q']) ? $this->db->escape_str($params['q']) : null);
+		if(isset($term) && !empty($term)){
+			$where .= " AND (`id` LIKE '%". $term ."%' OR `nomor` LIKE '%". $term ."%') ";
+		}
+		$group_by 		= "GROUP BY `id` ";
+		$order_by 		= "ORDER BY `id` ASC ";
+		$result_total	= $this->db->query($select_total . $from . $where . ";");
+		$total_data 	= $result_total->row()->total;
+		$total_page		= ceil((int)$total_data/$row_per_page);
+		$page 			= isset($params['page']) ? (int)$params['page'] : 1;
+		$offset 		= (($page - 1) * $row_per_page);
+		$result_total->free_result();
+		$data = $this->db->query($select_data . $from . $where . $group_by . $order_by ." LIMIT ". $row_per_page ." OFFSET ". $offset .";");
+		return array( 
+			'results' 		=> $data->result_array(),
+			'pagination' 	=> array('more' => ($page < $total_page)) 
+		);
+		$data->free_result();
+	}
+	/* CRUD */
+	public function insert($params){
+
+		extract($params);
+
+		$result = array(
+			'status'	=> 'error',
+			'message'	=> 'Lengkapi form.',
+			'redirect'	=> $this->module['url']
+		);
+
+		$data_is_valid = TRUE;
+
+		if( isset($pembayaran['id_pembelian']) && !empty($pembayaran['id_pembelian']) ){
+			
+			// if( isset($pembayaran['nomor']) && !empty($pembayaran['nomor']) ){
+			// 	$pembayaran['nomor'] 	= trim(strip_tags($pembayaran['nomor']));
+			// 	$data_is_valid 	= $this->is_unique_field('nomor', $pembayaran['nomor']);
+			// 	if($data_is_valid == FALSE){
+			// 		$result['message'] 	= "Nomor sudah digunakan.";
+			// 	}
+			// }
+
+			if( $data_is_valid == TRUE ){
+				$result['message'] 		= "Data Gagal disimpan.";
+				
+				$this->db->trans_begin();
+				extract($pembayaran);
+				$this->db->query("
+					INSERT INTO `pembayaran` (`id_pemasok`,`nomor`,`id_pembelian`,`tgl_bayar`) 
+					VALUES ('".$id_pemasok."','".$nomor."','".$id_pembelian."','".$tgl_bayar."');
+				");
+
+				$id_pembayaran 		= (int)$this->db->insert_id();
+
+				/* Build Data Reference */
+				$ref = [
+					'text' 		=> $id_pembayaran,
+					'link' 		=> $this->module['url'] .'/single/' . $id_pembayaran,
+					'pk'		=> $id_pembelian,
+					'table'		=> 'pembayaran'
+				];
+				$total_potongan = $total_pembayaran = 0;
+
+				if(isset($rincian)){
+					foreach( $rincian AS $index => $transaction ){
+						extract($transaction);
+						$total_pembayaran 	+= $total;
+						$total_potongan 	+= $potongan;
+						$id_giro 	= isset($id_giro) && !empty($id_giro) ? $id_giro :'NULL';
+						$tgl_giro 	= isset($tgl_giro) && !empty($tgl_giro)  ? "'" . $tgl_giro . "'" :'NULL';
+
+						if($id_giro != "NULL"){
+							$this->db->query("
+							INSERT INTO `rincian_pembayaran` (`id_pembayaran`,`id_akun`,`id_giro`,`tgl_giro`,`metode`,`nominal`,`potongan`,`total`, chek) 
+								VALUES ('".$id_pembayaran."','".$id_akun."',".$id_giro.",".$tgl_giro.",'".$metode."','".$nominal."','".$potongan."','".$total."', '1');
+						");
+						}else{
+							$this->db->query("
+							INSERT INTO `rincian_pembayaran` (`id_pembayaran`,`id_akun`,`id_giro`,`tgl_giro`,`metode`,`nominal`,`potongan`,`total`) 
+								VALUES ('".$id_pembayaran."','".$id_akun."',".$id_giro.",".$tgl_giro.",'".$metode."','".$nominal."','".$potongan."','".$total."');
+						");
+						}
+						$this->db->query("
+							INSERT INTO `jurnal` (`id_akun`, `tgl`, `kredit`, `debit`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, metode, id_cabang)
+							VALUES ('".$id_akun."','".$tgl_bayar."',0,'".$nominal."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','". $ref['table'] ."', '".$metode."','".$id_cabang."');
+						");
+						unset($id_giro,$tgl_giro);
+					}
+				}
+				/* Tambah Jurnal Pendapatan Potongan Pembelian */
+				if($total_potongan <> 0){
+					$this->db->query("
+						INSERT INTO `jurnal` (`id_akun`, `tgl`, `debit`, `kredit`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, id_cabang)
+						VALUES ( 9,'".$tgl_bayar."', 0,". $total_potongan .", '". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."' ,'". $ref['table'] ."','".$id_cabang."');
+					");
+				}
+
+				// if($total_sisa_hutang == 0){
+				// 	$this->db->query("UPDATE `pembelian` SET `bon`='2' WHERE `id`=". $id_pembelian .";");
+				// }
+				$this->db->query("
+					INSERT INTO `jurnal` (`id_akun`, `tgl`, `kredit`, `debit`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, id_cabang)
+					VALUES ( 4,'".$tgl_bayar."', ". $total_pembayaran .", 0, '". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."' ,'". $ref['table'] ."','".$id_cabang."');
+				");
+				$this->db->query("UPDATE `pembayaran` SET `nominal`=". $total_pembayaran ." WHERE `id`=". $id_pembayaran .";");
+				$this->db->query("
+				UPDATE `pembelian` 
+				    LEFT JOIN (
+				        SELECT 
+				            `rincian_pembelian`.`id_pembelian` AS `id`,
+				            SUM(`rincian_pembelian`.`total`) AS `total_rincian`
+				        FROM `rincian_pembelian`
+				        WHERE `rincian_pembelian`.`id_pembelian`=". $id_pembelian ."
+				        GROUP BY `rincian_pembelian`.`id_pembelian`
+				    ) AS `rincian` ON `rincian`.`id`=`pembelian`.`id`
+				    LEFT JOIN (
+				        SELECT 
+				            `pembayaran`.`id_pembelian` AS `id`,
+				            SUM(`pembayaran`.`nominal`) AS `total_pembayaran`
+				        FROM `pembayaran`
+				        WHERE `pembayaran`.`id_pembelian`=". $id_pembelian ."
+				        GROUP BY `pembayaran`.`id_pembelian`
+				    ) AS `payment` ON `payment`.`id`=`pembelian`.`id`
+				SET 
+				    `pembelian`.`bon`     = 2,
+				    `pembelian`.`total_rincian`     = `rincian`.`total_rincian`,
+				    `pembelian`.`total_tagihan`     = `rincian`.`total_rincian`-`pembelian`.`diskon`,
+				    `pembelian`.`total_pembayaran`  = `payment`.`total_pembayaran`,
+				    `pembelian`.`sisa_tagihan`      = `rincian`.`total_rincian`-`pembelian`.`diskon`-`payment`.`total_pembayaran`
+				WHERE `pembelian`.`id`=". $id_pembelian .";
+				");
+
+				if ($this->db->trans_status() === FALSE){
+					$result['message'] 	= $this->db->error();
+					$this->db->trans_rollback();
+				} else {
+					$this->db->trans_commit();
+					$result['status'] 	= TRUE;
+					$result['message'] 	= 'Data telah disimpan.';
+				}
+				
+			}
+
+		}
+		$current = date("Y-m-d");
+		$this->db->set('chek','2');
+		$this->db->where('tgl_giro <=',$current);
+		$this->db->update('rincian_pembayaran');
+
+
+		unset($pembayaran);
+		return $result;
+		unset($result);
+	}
+	public function update($params){
+		extract($params);
+
+		$result = array(
+			'status'	=> 'error',
+			'message'	=> 'Lengkapi form.',
+			'redirect'	=> $this->module['url']
+		);
+		$deleted = $this->delete($params);
+		if(isset($deleted['status']) && $deleted['status'] === TRUE){
+			$result = $this->insert($params);
+		}
+		return $result;
+		unset($result);
+	}
+	public function delete($params = array()){
+
+		extract($params);
+
+		$result = array(
+			'status'	=> 'error',
+			'message'	=> 'Please complete data field requirements.'
+		);
+
+		if( isset($pk) ){
+			$result['message'] 	= "Data couldnt delete.";
+			$pembayaran = $this->db->where(['id'=>$pk])->get('pembayaran')->row();
+
+			$this->db->trans_begin();
+			$this->db->query("DELETE FROM `pembayaran`  WHERE `gabung_faktur`=0 AND `id`='". $pk ."';");
+			$this->db->query("DELETE FROM `jurnal`  	WHERE `ref_table`='pembayaran' AND `ref_text`='". $pk ."';");
+			if(isset($pembayaran->id_pembelian)){
+
+				$this->db->query("
+				UPDATE `pembelian` 
+				    LEFT JOIN (
+				        SELECT 
+				            `rincian_pembelian`.`id_pembelian` AS `id`,
+				            SUM(`rincian_pembelian`.`total`) AS `total_rincian`
+				        FROM `rincian_pembelian`
+				        WHERE `rincian_pembelian`.`id_pembelian`=". $pembayaran->id_pembelian ."
+				        GROUP BY `rincian_pembelian`.`id_pembelian`
+				    ) AS `rincian` ON `rincian`.`id`=`pembelian`.`id`
+				    LEFT JOIN (
+				        SELECT 
+				            `pembayaran`.`id_pembelian` AS `id`,
+				            SUM(`pembayaran`.`nominal`) AS `total_pembayaran`
+				        FROM `pembayaran`
+				        WHERE `pembayaran`.`id_pembelian`=". $pembayaran->id_pembelian ."
+				        GROUP BY `pembayaran`.`id_pembelian`
+				    ) AS `payment` ON `payment`.`id`=`pembelian`.`id`
+				SET 
+				    `pembelian`.`total_rincian`     = `rincian`.`total_rincian`,
+				    `pembelian`.`total_tagihan`     = `rincian`.`total_rincian`-`pembelian`.`diskon`,
+				    `pembelian`.`total_pembayaran`  = `payment`.`total_pembayaran`,
+				    `pembelian`.`sisa_tagihan`      = `rincian`.`total_rincian`-`pembelian`.`diskon`-`payment`.`total_pembayaran`
+				WHERE `pembelian`.`id`=". $pembayaran->id_pembelian .";
+				");
+			}
+
+			if ($this->db->trans_status() === FALSE){
+				$result['message'] 	= $this->db->error();
+				$this->db->trans_rollback();
+			} else {
+				$this->db->trans_commit();
+				$result['status'] 	= TRUE;
+				$result['message'] 	= 'Data telah disimpan.';
+			}
+		}
+		return $result;
+		unset($result);
+	}
+
+}

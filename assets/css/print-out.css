@@ -1,0 +1,21 @@
+body {
+
+}
+
+.print-out-header {
+	border-bottom:4px double #000;
+}
+.print-out-header .print-out-title {
+	font-weight:bold;
+	font-size:1.5rem;
+	text-align:center;
+	margin-bottom:1rem;
+}
+
+.print-out-body {
+
+}
+
+.print-out-footer {
+
+}
