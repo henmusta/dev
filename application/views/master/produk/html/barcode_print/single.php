@@ -2,8 +2,8 @@
 .fix{
   width:100px; 
   height:40px;
-  margin-top:18px; 
-  margin-bottom:19px; 
+  margin-top:7px; 
+  margin-bottom:31.5px; 
   margin-right:5px;
   margin-left:5px;
   text-align: center;
@@ -16,8 +16,9 @@
             <div class="fix">
                 <?php 
                 $generator = new Picqer\Barcode\BarcodeGeneratorDynamicHTML();
+                echo "Rp. ".number_format($barcode->harga_jual);
                 echo $generator->getBarcode($barcode->kode_produk, $generator::TYPE_CODE_128, 1, 14);
-                echo $barcode->nama;
+                echo $barcode->kode_produk;
                 ?>
             </div>
           </td>

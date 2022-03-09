@@ -2,22 +2,22 @@
 .fix{
   width:100px; 
   height:40px;
-  margin-top:18px; 
-  margin-bottom:19px; 
+  margin-top:7px; 
+  margin-bottom:31.5px; 
   margin-right:5px;
   margin-left:5px;
   text-align: center;
 }
 </style>
 <?php 
-$html = "";
 $i = 3;
 $array = [];
 foreach ($barcode as $value) {
   $generator = new Picqer\Barcode\BarcodeGeneratorDynamicHTML();
   $array['generator'.$i] = $generator->getBarcode($value->kode_produk, $generator::TYPE_CODE_128, 1, 14);
-  // $array['generator'.$i] = '<img src="data:image/png;base64,' . base64_encode($generator->getBarcode('081231723897', $generator::TYPE_CODE_128)) . '">';
   $array['name'.$i] = $value->nama;
+  $array['kode'.$i] = $value->kode_produk;
+  $array['harga'.$i] = $value->harga_jual;
   $i++;
 }
 ?>
@@ -30,8 +30,10 @@ foreach ($barcode as $value) {
       ?>
           <td>
             <div class="fix">
-              <?php echo $array['generator'.$j];
-                  echo $array['name'.$j]; ?>
+              <?php 
+                  echo "Rp. ".number_format($array['kode'.$j]);
+                  echo $array['generator'.$j];
+                  echo $array['kode'.$j]; ?>
             </div>
           </td>
       <?php 
