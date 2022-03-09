@@ -3,9 +3,10 @@
   width:100px; 
   height:40px;
   margin-top:18px; 
-  margin-bottom:20px; 
+  margin-bottom:19px; 
   margin-right:5px;
   margin-left:5px;
+  text-align: center;
 }
 </style>
 <html>

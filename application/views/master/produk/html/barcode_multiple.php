@@ -5,7 +5,7 @@
                 <button type="button" class="btn-block-option" data-toggle="block-option"
                     data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
                     <button type="button" class="btn-block-option"  id="barcode_single"><i class="si si-printer mr-1"></i></button>
-                        <input type="text" id="id" value="<?php echo $kode ?>">	
+                        <input type="hidden" id="id" value="<?php echo $kode ?>">	
             </div>
         </div>
         <div class="block-content" id="report">
