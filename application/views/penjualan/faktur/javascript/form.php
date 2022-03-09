@@ -12,6 +12,25 @@ $(function(){
 			}
 		});
 
+
+		const currenciesOptions = {
+			unformatOnSubmit            : true,
+			decimalCharacterAlternative: ".",
+			decimalPlaces: 0,
+			//minimumValue: "0",
+		};
+
+		const 	totalItems 			= new AutoNumeric('#totalItems',currenciesOptions),
+				discountItems 		= new AutoNumeric('#discountItems',currenciesOptions),
+				billItems 			= new AutoNumeric('#billItems',currenciesOptions),
+				totalPayments 		= new AutoNumeric('#totalPayments',currenciesOptions),
+				totalretur	 		= new AutoNumeric('#totalretur',currenciesOptions),
+				harga	 		    = new AutoNumeric('#harga',currenciesOptions),
+				total_harga	 		= new AutoNumeric('#total_harga',currenciesOptions),
+				totretur	 		= new AutoNumeric('#totretur',currenciesOptions),
+				totalcek	 		= new AutoNumeric('#totalcek',currenciesOptions),
+				totalReceivable 	= new AutoNumeric('#totalReceivable',currenciesOptions);		
+
 		var delay = (function(){
 		var timer = 0;
 		return function(callback, ms){
@@ -40,14 +59,17 @@ $(function(){
 							dataType 	: 'json',
 							data: 'kode_produk=' + value,
 							success: function(response){   
+								
 									$("#nama_barang").val(response.nama);
 									$("#kode_barang").val(response.kode_produk);
 									$("#harga").val(response.harga_jual);
+									$("#total_harga").val(response.harga_jual);
 									$("#id_produk").val(response.id);
 									$("#text_produk").val(response.text);
 									$("#saldo_produk").val(response.saldo);
 									$('#barcode_form').modal('show');
 									new AutoNumeric('#harga',currenciesOptions);
+									new AutoNumeric('#total_harga',currenciesOptions);
 							},
 							error: function (xhr, ajaxOptions, thrownError){
 							console.log(thrownError);
@@ -56,6 +78,13 @@ $(function(){
 					}, 800);
 				}
 	
+		});
+
+		$("#qty, #harga").on("keyup change", function(e) {
+			let harga_new = new AutoNumeric('#harga',currenciesOptions);
+			let harga_total = harga_new.getNumber() * $("#qty").val();
+			// alert($("#qty").val());
+			total_harga.set(harga_total);
 		});
 		// $("#code_id_value").on("keyup change", function(e) {
 		// 	$('#barcode_form').modal('show');
@@ -142,10 +171,9 @@ $(function(){
 		  }
 		 });
 
-		 $('.nama-pelanggan').on('keyup',function(){
-			//  alert($('#id_cabang').val());
-				// $('.select2-produk').val(null).trigger('change');
-			});
+    		 $('.nama-pelanggan').on('keyup',function(){
+
+		    });
 
 
 		$('#select-pelanggan').select2({
@@ -185,22 +213,7 @@ $(function(){
 					}
 				});
 
-		const currenciesOptions = {
-			unformatOnSubmit            : true,
-			decimalCharacterAlternative: ".",
-			decimalPlaces: 0,
-			//minimumValue: "0",
-		};
-
-		const 	totalItems 			= new AutoNumeric('#totalItems',currenciesOptions),
-				discountItems 		= new AutoNumeric('#discountItems',currenciesOptions),
-				billItems 			= new AutoNumeric('#billItems',currenciesOptions),
-				totalPayments 		= new AutoNumeric('#totalPayments',currenciesOptions),
-				totalretur	 		= new AutoNumeric('#totalretur',currenciesOptions),
-				harga	 		    = new AutoNumeric('#harga',currenciesOptions),
-				totretur	 		= new AutoNumeric('#totretur',currenciesOptions),
-				totalcek	 		= new AutoNumeric('#totalcek',currenciesOptions),
-				totalReceivable 	= new AutoNumeric('#totalReceivable',currenciesOptions);
+	
 
 
 		$('#table-retur').on('changeTotalItem',	function(){
@@ -265,6 +278,7 @@ $(function(){
 			columns : [
 				{ 
 					data : 'id_produk',
+					name : 'produk_id',
 					render : function ( columnData, type, rowData, meta ) {	
 
 					let selectedOption;
@@ -314,6 +328,7 @@ $(function(){
 					className 	: 'text-right',
 					render 		: function ( columnData, type, rowData, meta ) {
 						let total = parseInt(rowData.harga) * parseInt(rowData.qty);
+						// alert(rowData.harga);
 						return String(`
 							<input id="item_total_` + meta.row + `" class="form-control text-right" value="`+ total +`" name="rincian[`+ meta.row +`][total]" readonly="readonly" data-column="total">
 						`).trim();
@@ -336,11 +351,11 @@ $(function(){
 					api.row.add({ id_produk : '', harga : 0, qty : 1, item_stok : 0, total : 0 }).draw();
 				});
 				$('#add_item').click(function() {
-					let harga_produk = harga.getNumber() * $("#qty").val() ;
-					alert(harga.getNumber()sss);
-					api.row.add({ id_produk : $("#id_produk").val() , harga : $("#harga").val(), qty : $("#qty").val(),  saldo : $("#saldo_produk").val(), total : harga_produk }).draw();
+					let harga_new = new AutoNumeric('#harga',currenciesOptions);
+					let tot = harga_new.getNumber();
+					api.row.add({ id_produk : $("#id_produk").val() , harga :  tot,qty : $("#qty").val(),  saldo : $("#saldo_produk").val(),  total : 0}).draw();
 					$('#barcode_form').modal('hide');
-					$('#table-items').trigger('changeTotalItem');
+					// $('#table-items').trigger('changeTotalItem');
                 });
 				$('#discountItems').keyup(function(){
 					$('#table-items').trigger('changeTotalItem');
@@ -396,6 +411,7 @@ $(function(){
 				$(row).find('#item_harga_' + index + ', ' + '#item_qty_' + index).keyup(function(){
 					let harga 	= AutoNumeric.getNumber('#item_harga_' + index),
 						qty 		= AutoNumeric.getNumber('#item_qty_' + index);
+						// alert(harga);
 					AutoNumeric.getAutoNumericElement('#item_total_' + index).set(harga * qty);
 					$('#table-items').trigger('changeTotalItem');
 				});

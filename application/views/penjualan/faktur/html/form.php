@@ -26,8 +26,8 @@ $penjualan = isset($data) ? $data : (object)[];
 						</button>
 					</div>
 					<div class="modal-body">
-					<input type="text" class="form-control" id="id_produk" >
-					<input type="text" class="form-control" id="text_produk" >
+					<input type="text" class="form-control" id="id_produk" hidden>
+					<input type="text" class="form-control" id="text_produk" hidden>
 						<div class="form-group">
 							<label for="nama-barang" class="col-form-label">Nama Produk</label>
 							<input type="text" class="form-control" id="nama_barang" readonly>
@@ -46,7 +46,11 @@ $penjualan = isset($data) ? $data : (object)[];
 						</div>
 						<div class="form-group">
 							<label for="recipient-name" class="col-form-label">Qty</label>
-							<input type="text" class="form-control" id="qty">
+							<input type="text" class="form-control" id="qty" value="1">
+						</div>
+						<div class="form-group">
+							<label for="recipient-name" class="col-form-label">Total Harga</label>
+							<input type="text" class="form-control" id="total_harga">
 						</div>
 					</div>
 					<div class="modal-footer">
