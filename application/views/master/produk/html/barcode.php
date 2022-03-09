@@ -8,10 +8,7 @@
             </div>
         </div>
         <div class="block-content" id="report">
-        <div id="REPRESENTATIVES">
-            <input type="text" id="test" value="" />
-            <input type="text" id="bbb" value="paste here" />
-        </div>
+        <input type="hidden" id="id" value="<?php echo $data->id ?>">	
             <div>
                 <?php 
                     $generator = new Picqer\Barcode\BarcodeGeneratorHTML();
