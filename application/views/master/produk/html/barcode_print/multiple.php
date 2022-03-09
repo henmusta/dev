@@ -1,8 +1,10 @@
 <style>html { margin: 1px; font-size : 8px;}
 .fix{
-  width:120px; 
-  height:40px; 
-  margin-bottom:10px; 
+  width:100px; 
+  height:40px;
+  margin-top:18px; 
+  margin-bottom:20px; 
+  margin-right:5px;
   margin-left:5px;
 }
 </style>
@@ -19,7 +21,7 @@ foreach ($barcode as $value) {
 }
 ?>
 <html>
-  <table>
+  <table style="width:100%;">
     <?php for ($j=3; $j < $i; $j++) { 
       if ($j%3 == 0) {?>
       <tr>
