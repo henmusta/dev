@@ -1,4 +1,4 @@
-<style>html { margin: 1px; font-size : 8px;}
+<style>html { margin: 1px; font-size : 7px;}
 .fix{
   width:100px; 
   height:40px;
