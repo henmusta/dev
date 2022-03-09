@@ -212,6 +212,11 @@ class Faktur extends GT_Controller {
 						'params' 	=> $params
 					);
 				break;
+				case 'get_kode_produk':
+					$config = array(
+						'params' 	=> $params
+					);
+				break;
 				case 'select2':
 				case 'select2_akun':
 				case 'select2_giro':

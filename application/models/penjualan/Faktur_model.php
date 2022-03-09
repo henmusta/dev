@@ -161,6 +161,26 @@ class Faktur_model extends CI_Model {
 		return $result;
 	}
 
+	public function get_kode_produk($config = []){
+		extract($config);
+		$pk = isset($params['kode_produk']) ? (int)$params['kode_produk']:0;
+
+		// $penjualan = (object)[
+		// 	'total_tagihan'=>0,
+		// 	'total_pelunasan'=>0,
+		// 	'sisa_tagihan'=>0
+		// ];
+		if($result = $this->db
+		->select('produk.*, CONCAT(pemasok.nama," / ", produk.nama) as text,  SUM(IFNULL(`stok`.`qty`,0)) AS `saldo`')
+		->from('produk')
+		->join('pemasok', 'pemasok.id = produk.id_pemasok', 'left')
+		->join('stok', 'stok.`id_produk` = produk.`id`', 'left')
+		->where(['kode_produk'=>$pk])->get()){
+			return $result->row();
+		}
+		return $kode_produk;
+	} 
+
 	public function datatable($config = array()){
 		extract($config);
 			$columns 			= array('tgl_nota', 'nama_pelanggan', 'nomor', 'total_tagihan', 'diskon','notaretur','n.chek','n.total_pelunasan - sum(IFNULL(rp.potongan,0)) - n.chek','sum(IFNULL(rp.potongan,0))', 'total_tagihan','total_pelunasan','sisa_tagihan' ,'id');

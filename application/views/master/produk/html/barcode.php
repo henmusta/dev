@@ -8,7 +8,10 @@
             </div>
         </div>
         <div class="block-content" id="report">
-        <input type="text" id="id" value="<?php echo $data->id ?>">	
+        <div id="REPRESENTATIVES">
+            <input type="text" id="test" value="" />
+            <input type="text" id="bbb" value="paste here" />
+        </div>
             <div>
                 <?php 
                     $generator = new Picqer\Barcode\BarcodeGeneratorHTML();
@@ -19,3 +22,8 @@
         </div>
     </div>
 </div>
+<script>
+    $("input").on("paste",function(e){
+    	$("#test").focus();
+});
+    </script>

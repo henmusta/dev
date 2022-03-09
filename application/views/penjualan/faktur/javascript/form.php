@@ -3,6 +3,89 @@
 $(function(){
 	'use strict'
 	$(document).ready(function(){
+		document.addEventListener("keypress", function(e) {
+			if (e.target.tagName !== "INPUT") {
+				var input = document.querySelector("#code_id_value");
+				input.focus();
+				input.value = e.key;
+				e.preventDefault();
+			}
+		});
+
+		var delay = (function(){
+		var timer = 0;
+		return function(callback, ms){
+			clearTimeout(timer);
+			timer = setTimeout(callback,ms);
+		};
+    	})();
+		
+		$( "#code_id_value" ).on('input', function(e) {
+			e.stopPropagation();
+			var $this = $(this);
+			var value = $this.val();
+		
+			if (value.length > 0) {
+				value = parseInt(value);
+			}
+			else {
+				value = "";
+			}
+				if (value !== '') {
+					delay(function(){
+					
+						$.ajax({
+							type: 'POST',
+							url : '<?= $module['url'];?>/api-data/get_kode_produk',
+							dataType 	: 'json',
+							data: 'kode_produk=' + value,
+							success: function(response){   
+									$("#nama_barang").val(response.nama);
+									$("#kode_barang").val(response.kode_produk);
+									$("#harga").val(response.harga_jual);
+									$("#id_produk").val(response.id);
+									$("#text_produk").val(response.text);
+									$("#saldo_produk").val(response.saldo);
+									$('#barcode_form').modal('show');
+									new AutoNumeric('#harga',currenciesOptions);
+							},
+							error: function (xhr, ajaxOptions, thrownError){
+							console.log(thrownError);
+							}
+						});
+					}, 800);
+				}
+	
+		});
+		// $("#code_id_value").on("keyup change", function(e) {
+		// 	$('#barcode_form').modal('show');
+		// 	if(e.keyCode==13)
+		// 	{    
+		// 	console.log('Event keyUp on enter');
+		// 		var text=$('#text').val(); 
+		// 		$.ajax({
+				
+		// 			type:'POST',
+		// 			url:'insert_msg.php',
+		// 			data:{text:text},
+
+		// 			success:function(){    alert('hello');
+		// 				$('#scroll_msg').load('display_msg.php');
+		// 				$('#text').val('');
+		// 			} 
+		// 		});
+		// 	} 
+		// })
+		$('#barcode_form').on('hidden.bs.modal', function () {
+			$("#code_id_value").val('');
+			$("#nama_barang").val('');
+			$("#kode_barang").val('');
+			$("#harga").val('');
+		});
+		// $('#barcode_form').addEventListener('hidden.bs.modal', function (event) {
+		// 	// 
+		// 	alert("waw");
+        // });
 		$("#btnretur").on('click', function(){
 			$("#table-retur").attr("hidden",false);
 			$("#clsretur").attr("hidden",false);
@@ -63,47 +146,7 @@ $(function(){
 			//  alert($('#id_cabang').val());
 				// $('.select2-produk').val(null).trigger('change');
 			});
-		// $('#nama-pelanggan').focusout(function(){
-		// 	let nama = $(this).val();
-		// 	$.post(
-		// 		'<?= $module['url'];?>/api-data/get-kode-pelanggan-by-nama',
-		// 		{nama:nama}, function(response){
-		// 			if(response.status == 'success'){
-		// 				$('#alamat-pelanggan').val(response.alamat_pelanggan);
-		// 				$('#id_pelanggan').val(response.id);
-		// 			} else {
-		// 				$('#alamat-pelanggan').val(null);
-		// 				$('#id_pelanggan').val();
-		// 			}
-		// 		},
-		// 		'json'
-		// 		);
-		// });
 
-		// $('#select2-penjualan').select2({
-		// 	ajax : {
-		// 		url 		: '<?= $module['url'];?>/api-data/select2-penjualan',
-		// 		dataType 	: 'json',
-		// 		type 		: 'POST',
-		// 		data 		: function (params) {
-		// 					var query = {
-		// 						search: params.term,
-		// 						type: 'public'
-		// 					}
-		// 					return $.extend({},params,{ id_pelanggan: $('#select-pelanggan').val() });
-		// 				},
-		// 		processResults: function (myData) {
-		// 			var data = $.map(myData.results, function (obj) {
-		// 				obj.text = obj.text || obj.id +' / '+ obj.nomor;
-		// 				obj.id   = obj.id
-		// 				return obj;
-		// 			});
-		// 			return {
-		// 				results : data
-		// 			};
-		// 		}
-		// 	}
-		// });
 
 		$('#select-pelanggan').select2({
 			ajax : {
@@ -154,6 +197,7 @@ $(function(){
 				billItems 			= new AutoNumeric('#billItems',currenciesOptions),
 				totalPayments 		= new AutoNumeric('#totalPayments',currenciesOptions),
 				totalretur	 		= new AutoNumeric('#totalretur',currenciesOptions),
+				harga	 		    = new AutoNumeric('#harga',currenciesOptions),
 				totretur	 		= new AutoNumeric('#totretur',currenciesOptions),
 				totalcek	 		= new AutoNumeric('#totalcek',currenciesOptions),
 				totalReceivable 	= new AutoNumeric('#totalReceivable',currenciesOptions);
@@ -221,8 +265,15 @@ $(function(){
 			columns : [
 				{ 
 					data : 'id_produk',
-					render : function ( columnData, type, rowData, meta ) {
-						let selectedOption = (columnData != null && columnData != '' && columnData != 0) ? `<option selected="selected" value="`+ columnData +`">`+ rowData.kode_pemasok+ ` / ` + rowData.nama_pemasok +  ` / ` + rowData.nama_produk +`</option>`: ``;
+					render : function ( columnData, type, rowData, meta ) {	
+
+					let selectedOption;
+					if(rowData.nama_produk != null || rowData.nama_produk != '' || rowData.nama_produk != 0){
+						selectedOption = `<option selected="selected" value="`+ columnData +`">`+ $("#text_produk").val() + `</option>`;
+					}else{
+						selectedOption = (columnData != null && columnData != '' && columnData != 0) ? `<option selected="selected" value="`+ columnData +`">`+ rowData.kode_pemasok+ ` / ` + rowData.nama_pemasok +  ` / ` + rowData.nama_produk +`</option>`: ``;
+					}
+					
 						return String(`<select class="form-control select2-produk" value="`+ columnData +`" name="rincian[`+ meta.row +`][id_produk]" required="required">`+ selectedOption +`</select>`).trim();
 					}
 				},
@@ -282,12 +333,15 @@ $(function(){
 			initComplete : function(settings, json){
 				let api = this.api();
 				$(api.table().footer()).find('.btn-add-row').click(function(){
-					api.row.add({ nama : '', harga : 0, qty : 1, item_stok : 0, total : 0 }).draw();
+					api.row.add({ id_produk : '', harga : 0, qty : 1, item_stok : 0, total : 0 }).draw();
 				});
-				// $(api.table().footer()).find('.btn-delete-row').click(function(){
-				// 	api.row( ':last' ).remove().draw();
-				// });
-
+				$('#add_item').click(function() {
+					let harga_produk = harga.getNumber() * $("#qty").val() ;
+					alert(harga.getNumber()sss);
+					api.row.add({ id_produk : $("#id_produk").val() , harga : $("#harga").val(), qty : $("#qty").val(),  saldo : $("#saldo_produk").val(), total : harga_produk }).draw();
+					$('#barcode_form').modal('hide');
+					$('#table-items').trigger('changeTotalItem');
+                });
 				$('#discountItems').keyup(function(){
 					$('#table-items').trigger('changeTotalItem');
 				});
