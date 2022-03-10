@@ -101,9 +101,9 @@ class Printer extends CI_Controller
         $pdf->Cell(100, 10, number_format($list->diskon), 0, 1, 'R');
         $pdf->Cell(400, 10, 'Retur Barang Rijek Harus Ada Barcode Barang', 0, 0);
 		$pdf->Cell(29, 10, 'Total Akhir  :', 0, 0);
-        $pdf->Cell(100, 10, number_format($list->total_rincian - $list->retur->nominal - $list->diskon + $list->chek), 0, 1, 'R');
+        $pdf->Cell(100, 10, number_format($list->sisa_tagihan), 0, 1, 'R');
         $pdf->Ln(8);
-		$pdf->Cell(100, 15, '**'.preg_replace('/\s+/', ' ', terbilang($list->total_tagihan)).'Rupiah **', 0, 1);
+		$pdf->Cell(100, 15, '**'.preg_replace('/\s+/', ' ', terbilang($list->sisa_tagihan)).'Rupiah **', 0, 1);
         $pdf->Ln(15);
 		$pdf->SetFont('Arial', '', 8);
         $pdf->Cell(132, 15, 'Penerima, ', 0, 0, 'C');
