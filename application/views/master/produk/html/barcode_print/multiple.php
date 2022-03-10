@@ -31,7 +31,7 @@ foreach ($barcode as $value) {
           <td>
             <div class="fix">
               <?php 
-                  echo "Rp. ".number_format($array['kode'.$j]);
+                  echo "Rp. ".number_format($array['harga'.$j]);
                   echo $array['generator'.$j];
                   echo $array['kode'.$j]; ?>
             </div>
