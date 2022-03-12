@@ -294,7 +294,6 @@ LEFT JOIN (SELECT SUM(produk.`laba` * rincian_retur_penjualan.qty) AS laba,
 			"data1"				=> $totalretur 
 		); unset($results,$params,$totalData,$totalFiltered,$data);
 	}
-	
 
 	
 

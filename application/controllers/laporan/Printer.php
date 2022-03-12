@@ -18,22 +18,25 @@ class Printer extends CI_Controller
 	  $list = $this->penjualan->single_combine($pk);
 	  $user = $_SESSION['user'];
 	  $num_rows = 1;
+      $no = 1;
 	  $metode = "";
 	  foreach ($list->rincian_pelunasan as $row) {
 		  $metode .= $row->metode;
 	  }
-      $products = array_chunk($list->rincian_penjualan, 10);
+      $products = array_chunk($list->rincian_penjualan, 20);
+      $last = sizeof($products) - 1;
 	  if($num_rows > 0) // jika data ada di database
 	  {
         $pdf = new FPDF('L', 'pt', array(595.28, 421.45));
         $pdf->AliasNbPages();
         $pdf->AddPage();
-        foreach ($products as $rows) {
+        foreach ($products as $key => $rows) {
 
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(50, 10, $list->cabang->nama, 0, 0);
             $pdf->SetFont('Arial', 'B', 8);
-            $pdf->Cell(50, 10, 'CENTRAL BUSANA LAMPUNG', 0, 0);
             $pdf->Cell(350, 15, '');
-            $pdf->Cell(0, 10, 'LAMPUNG , '. date('d/m/Y', strtotime($list->tgl_nota)), 0, 1);
+            $pdf->Cell(0, 10, 'Bandar Lampung , '. date('d M Y', strtotime($list->tgl_nota)), 0, 1);
             $pdf->Cell(72, 10, 'Komplek Pertokoan Pasar Tengah', 0, 0);
             $pdf->Cell(328, 15, '');
             $pdf->Cell(0, 10, 'Kepada Yth : ', 0, 1);
@@ -48,31 +51,43 @@ class Printer extends CI_Controller
             $pdf->SetFont('Arial', 'B', 8);
             $pdf->Cell(282, 10, 'FAKTUR JUAL', 0, 0, 'R');
             $pdf->Cell(118);
-            $pdf->Cell(50, 10, 'Pemasaran', 0, 0, 'L');
-            $pdf->Cell(100, 10, ': '.$user->nama, 0, 1, 'L');
+            $pdf->Cell(50, 10, '', 0, 0, 'L');
+            $pdf->Cell(100, 10, '', 0, 1, 'L');
             $pdf->Cell(290, 5, '----------------------------', 0, 0, 'R');
             $pdf->Cell(110);
-            $pdf->Cell(50, 10, 'Nota', 0, 0, 'L');
-            $pdf->Cell(100, 10, ': '.$user->nama, 0, 1, 'L');
-            $pdf->Cell(210, 5, 'Jenis Trans : '.$metode, 0,0);
+            $pdf->Cell(50, 10, '', 0, 0, 'L');
+            $pdf->Cell(100, 10, '', 0, 1, 'L');
+            $pdf->Cell(210, 5, 'Jenis Pembayaran : '.$metode, 0,0);
             $pdf->Cell(80, 5, 'No : '.$list->nomor, 0, 0, 'C');
             $pdf->Cell(110);
-            $pdf->Cell(50, 10, 'Packing', 0, 0, 'L');
-            $pdf->Cell(100, 10, ': '.$user->nama, 0, 1, 'L');
+            $pdf->Cell(50, 10, '', 0, 0, 'L');
+            $pdf->Cell(100, 10, '', 0, 1, 'L');
             
-    
-            $pdf->SetFont('Arial', '', 8);
-            $pdf->Cell(189, 20, '================================================================================================================', 0, 1);
-            $pdf->Cell(50, 0, 'No.', 0,0,'C');
-            $pdf->Cell(100, 0, 'Banyak', 0,0,'L');
-            $pdf->Cell(200, 0, 'Nama Barang', 0,0,'L');
-            $pdf->Cell(90, 0, 'Harga', 0,0,'R');
-            $pdf->Cell(90, 0, 'Jumlah', 0,0,'R');
-            $pdf->Ln(0);
-            $pdf->Cell(189, 20, '================================================================================================================', 0, 1);
-            $pdf->Ln(5);
+            if ($key == 0) {
+                $pdf->SetFont('Arial', '', 8);
+                $pdf->Cell(189, 20, '================================================================================================================', 0, 1);
+                $pdf->Cell(50, 0, 'No.', 0,0,'C');
+                $pdf->Cell(100, 0, 'Banyak', 0,0,'L');
+                $pdf->Cell(200, 0, 'Nama Barang', 0,0,'L');
+                $pdf->Cell(90, 0, 'Harga', 0,0,'R');
+                $pdf->Cell(90, 0, 'Jumlah', 0,0,'R');
+                $pdf->Ln(0);
+                $pdf->Cell(189, 20, '================================================================================================================', 0, 1);
+                $pdf->Ln(5);
+            }else{
+                $pdf->SetFont('Arial', '', 8);
+                $pdf->Cell(189, 20, '================================================================================================================', 0, 1);
+                $pdf->Cell(50, 0, '', 0,0,'C');
+                $pdf->Cell(100, 0, '', 0,0,'L');
+                $pdf->Cell(200, 0, '', 0,0,'L');
+                $pdf->Cell(90, 0, '', 0,0,'R');
+                $pdf->Cell(90, 0, '', 0,0,'R');
+                $pdf->Ln(0);
+                $pdf->Cell(189, 20, '', 0, 1);
+                $pdf->Ln(5);
+            }
             
-            $no = 1;
+            
             $total_barang = sizeof($rows);
             $total_qty = 0;
             $total_harga = 0;
@@ -93,27 +108,41 @@ class Printer extends CI_Controller
                 }
             }
             $pdf->Cell(189, 5, '-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------', 0, 1);
-    
-            $pdf->SetFont('Arial', '', 8);
-            $pdf->Cell(50, 20, 'Total :', 0, 0);
-            $pdf->Cell(40, 20, number_format($total_qty), 0, 1);
-            $pdf->Cell(400, 10, 'Barang2 telah diterima baik dan cukup', 0, 0);
-            $pdf->Cell(29, 10, 'Total           :', 0, 0);
-            $pdf->Cell(100, 10, number_format($total_harga), 0, 1, 'R');
-            $pdf->Cell(400, 10, 'Retur Barang Rijek Max 15 hari', 0, 0);
-            $pdf->Cell(29, 10, 'Disc            :', 0, 0);
-            $pdf->Cell(100, 10, number_format($list->diskon), 0, 1, 'R');
-            $pdf->Cell(400, 10, 'Retur Barang Rijek Harus Ada Barcode Barang', 0, 0);
-            $pdf->Cell(29, 10, 'Total Akhir  :', 0, 0);
-            $pdf->Cell(100, 10, number_format($list->sisa_tagihan), 0, 1, 'R');
-            $pdf->Ln(8);
-            $pdf->Cell(100, 15, '**'.preg_replace('/\s+/', ' ', terbilang($list->sisa_tagihan)).'Rupiah **', 0, 1);
-            $pdf->Ln(15);
-            $pdf->SetFont('Arial', '', 8);
-            $pdf->Cell(132, 15, 'Penerima, ', 0, 0, 'C');
-            $pdf->Cell(132, 15, '', 0, 0, 'C');
-            $pdf->Cell(132, 15, '', 0, 0, 'C');
-            $pdf->Cell(132, 15, 'Hormat Kami,', 0, 1, 'C');
+            
+            if ($key == $last) {
+                $pdf->SetFont('Arial', '', 8);
+                if ($total_barang > 10) {
+                    $pdf->Ln($total_barang + 60);
+                }
+                $pdf->Cell(50, 20, 'Total :', 0, 0);
+                $pdf->Cell(350, 20, number_format($total_qty), 0, 0);
+                $pdf->Cell(29, 20, 'Sub Total           :', 0, 0);
+                $pdf->Cell(100, 20, 'Rp. '.number_format($total_harga), 0, 1, 'R');
+                $pdf->Cell(400, 10, 'Barang2 telah diterima baik dan cukup', 0, 0);
+                $pdf->Cell(29, 10, 'Total Retur         :', 0, 0);
+                $pdf->Cell(100, 10, 'Rp. '.number_format($list->retur->nominal), 0, 1, 'R');
+                $pdf->Cell(400, 10, 'Retur Barang Rijek Max 15 hari', 0, 0);
+                $pdf->Cell(29, 10, 'Cek Nota            :', 0, 0);
+                $pdf->Cell(100, 10, 'Rp. '.number_format($list->chek), 0, 1, 'R');
+                $pdf->Cell(400, 10, 'Retur Barang Rijek Harus Ada Barcode Barang', 0, 0);
+                $pdf->Cell(29, 10, 'Diskon                :', 0, 0);
+                $pdf->Cell(100, 10, 'Rp. '.number_format($list->diskon), 0, 1, 'R');
+                $pdf->Cell(400, 10, '', 0, 0);
+                $pdf->Cell(29, 10, 'Grand Total        :', 0, 0);
+                $pdf->Cell(100, 10, 'Rp. '.number_format($list->total_rincian - $list->retur->nominal - $list->diskon + $list->chek), 0, 1, 'R');
+                $pdf->Cell(400, 10, '**'.preg_replace('/\s+/', ' ', terbilang($list->total_tagihan)).'Rupiah **', 0, 0);
+                $pdf->Cell(29, 10, 'Total Pelunasan :', 0, 0);
+                $pdf->Cell(100, 10, 'Rp. '. number_format($list->pelunasan->nominal), 0, 1, 'R');
+                $pdf->Cell(400, 10, '', 0, 0);
+                $pdf->Cell(29, 10, 'Sisa Tagihan      :', 0, 0);
+                $pdf->Cell(100, 10, 'Rp. '.number_format($list->sisa_tagihan), 0, 1, 'R');
+                $pdf->Ln(10);
+                $pdf->SetFont('Arial', '', 8);
+                $pdf->Cell(132, 15, 'Penerima, ', 0, 0, 'C');
+                $pdf->Cell(132, 15, '', 0, 0, 'C');
+                $pdf->Cell(132, 15, '', 0, 0, 'C');
+                $pdf->Cell(132, 15, 'Hormat Kami,', 0, 1, 'C');
+            }
     
         }
         $pdf->Output('NOTA PENJUALAN CASH '.$pk.'.pdf','I');		
