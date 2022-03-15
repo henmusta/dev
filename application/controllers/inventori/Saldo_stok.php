@@ -23,6 +23,7 @@ class Saldo_stok extends GT_Controller {
 			),
 			'heading' => array('title'=>$data['module']['name'])
 		);
+		
 		$foot = array(
 			'javascripts'	=> array(
 				'assets/js/plugins/datatables/DataTables-1.10.21/js/jquery.dataTables.min.js',

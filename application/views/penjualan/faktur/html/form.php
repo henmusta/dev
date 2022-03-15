@@ -6,12 +6,18 @@ $penjualan = isset($data) ? $data : (object)[];
 		<input type="hidden" name="pk" value="<?= isset($data->id) ? $data->id : NULL ;?>">
 		<input type="hidden" id="id_cabang" name="penjualan[id_cabang]" value="<?php echo $this->user->id_cabang; ?>">
 		<div class="block">
+			
 			<div class="block-header">
 				<h3 class="block-title"><?= isset($module['name']) ? $module['name'] : NULL ;?></h3>
 				<div class="block-options">
+						<div class="form-group">
+							<label class="rdiobox"><input name="print" value="1" id="print" type="radio"> <span>Print Eceran</span></label>
+							<label class="rdiobox"><input name="print" value="0" id="not_print" type="radio"checked> <span>Disable</span></label>
+						</div>
 					<div class="btn-group btn-group-sm">
 						<a href="javascript:history.back();" class="btn btn-outline-secondary"><i class="fa fa-reply"></i> Kembali</a>
 						<button type="submit" class="btn btn-outline-primary"><i class="fa fa-save"></i> Simpan</button>
+						<!-- <button id="btn-bill-print" class="btn btn-block btn-outline-primary" type="button"><i class="fas fa-print"></i> Print</button> -->
 					</div>
 				</div>
 			</div>

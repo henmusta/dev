@@ -280,6 +280,7 @@ class Faktur_model extends CI_Model {
 				$id_pemasok = $pemasok->id;
 			} else {
 				$data['kode'] = trim(strip_tags($data['kode']));
+
 				$data['nama'] = trim(strip_tags($data['nama']));
 				if( $this->db->insert('pemasok', $data) ){
 					$id_pemasok = $this->db->insert_id();
@@ -293,11 +294,16 @@ class Faktur_model extends CI_Model {
 			$data['nama'] 		= trim(strip_tags($data['nama']));
 			$data['id_pemasok'] = (int)$data['id_pemasok'];
 			$produk = $this->db->get_where('produk',['nama'=>$data['nama'],'id_pemasok'=>$data['id_pemasok']])->row();
+			$max = $this->db->select('IF(ISNULL(max(id)), 1,  max(id) + 1) as max_id')->from('produk')->get()->row();
+			$date = date('ym');
+			$noUrutNext = $date . "" . str_pad($max->max_id, 1, "0", STR_PAD_LEFT) . "".$data['id_pemasok']. "" . $data['id_cabang'];
+			$data['kode_produk'] = $noUrutNext;
 			if(isset($produk->id) && !empty($produk->id)){
 				$id_produk = $produk->id;
 			} else {
 				if( $this->db->insert('produk', $data) ){
 					$id_produk = $this->db->insert_id();
+					
 				}
 			}
 			return $id_produk;
@@ -383,9 +389,9 @@ class Faktur_model extends CI_Model {
 					INSERT INTO `rincian_pembelian` (`id_pembelian`,`id_produk`,`qty`,`harga`,`total`) 
 						VALUES ('".$id_pembelian."','".$item['id_produk']."','".$item['qty']."','".$item['harga']."','".$item['total']."');
 				");
+			if($pembelian['status_ro'] == '1'){
 
-				if($pembelian['status_ro'] == '1'){
-					$sisa_qty = $item['qty'] - $item['qty'];
+				$sisa_qty = $item['qty'] - $item['qty'];
 				   $this->db->query("
 					INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`, status_ro)
 					VALUES ('".$item['id_produk']."','".$tgl_buat."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','pembelian','pembelian','".$item['harga']."',".$item['qty'].", '".$pembelian['status_ro']."');
@@ -396,7 +402,7 @@ class Faktur_model extends CI_Model {
 				  ");
 				}else{
 				   $this->db->query("
-					INSERT `receive_order` (`pembelian_id`, `id_produk`, `tgl`, `qty`, qty_diterima, status_ro)
+					INSERT `receive_order` (`pembelian_id`, `id_produk`, `tgl`, `qty`, qty_diterima, sisa_qty, status_ro)
 					VALUES ('".$id_pembelian."','".$item['id_produk']."','".$tgl_buat."',".$item['qty'].",'0',".$item['qty'].",'".$pembelian['status_ro']."');
 				  ");
 				}

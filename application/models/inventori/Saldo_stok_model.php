@@ -32,7 +32,7 @@ class Saldo_stok_model extends CI_Model {
 			LEFT JOIN `stok` ON `stok`.`id_produk`=`produk`.`id`
 		";
 		
-		$where 				= "WHERE `produk`.`id` IS NOT NULL ";
+		$where 				= "WHERE `produk`.`id` IS NOT NULL AND status_ro = 1 ";
 		$group_by 			= "GROUP BY `produk`.`id` ";
 		$having 			= "";
 		$order_by 			= "";

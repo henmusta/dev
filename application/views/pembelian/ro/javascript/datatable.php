@@ -63,28 +63,11 @@ $(function(){
 					orderable: false,
 					render : function ( columnData, type, rowData, meta ) {
 						let html = ``;
-						if('<?php echo $this->user->hak_akses;?>' === 'Super Admin'){
+						if( rowData.status_ro == 0){
 							html = `<div class="dropdown dropleft">
 								<button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-cog"></i></button>
 								<div class="dropdown-menu dropdown-menu-right">
-									<a class="dropdown-item btn-row-harga" href="<?= $module['url'];?>/harga-jual/`+ columnData +`?satuan=<?php echo $this->cabang->satuan;?> "  data-satuan="">Harga Jual</a>
-									<a class="dropdown-item" href="<?= $module['url'];?>/update/`+ columnData +`" >Edit</a>
-									<a class="dropdown-item btn-row-delete" href="javascript:void(0);" data-pk="`+ columnData +`">Hapus</a>
-								</div>
-							</div>`;
-						}else if('<?php echo $this->user->hak_akses;?>' === 'Kasir'){
-							html = `<div class="dropdown dropleft">
-								<button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-cog"></i></button>
-								<div class="dropdown-menu dropdown-menu-right">
-							</div>`;
-						}
-						else if('<?= date('Y-m-d');?>' === rowData.tgl_nota && rowData.sisa_tagihan != 0){
-							html = `<div class="dropdown dropleft">
-								<button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-cog"></i></button>
-								<div class="dropdown-menu dropdown-menu-right">
-								<a class="dropdown-item btn-row-harga" href="<?= $module['url'];?>/harga-jual/`+ columnData +`?satuan=<?php echo $this->cabang->satuan;?> "  data-satuan="">Harga Jual</a>
-									<a class="dropdown-item " href="<?= $module['url'];?>/update/`+ columnData +`">Edit</a>
-									<a class="dropdown-item btn-row-delete" href="javascript:void(0);" data-pk="`+ columnData +`">Hapus</a>
+									<a class="dropdown-item" href="<?= $module['url'];?>/update/`+ columnData +`" >Terima Barang</a>
 								</div>
 							</div>`;
 						}
@@ -92,8 +75,7 @@ $(function(){
 							html = `<div class="dropdown dropleft">
 								<button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-cog"></i></button>
 								<div class="dropdown-menu dropdown-menu-right">
-								<a class="dropdown-item btn-row-harga" href="<?= $module['url'];?>/harga-jual/`+ columnData +`?satuan=<?php echo $this->cabang->satuan;?> "  data-satuan="">Harga Jual</a>
-									<a class="dropdown-item btn-row-delete" href="javascript:void(0);" data-pk="`+ columnData +`">Hapus</a>
+								
 								</div>
 							</div>`;
 						}

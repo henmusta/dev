@@ -70,6 +70,7 @@ class Faktur extends GT_Controller {
 				'assets/js/plugins/datatables/DataTables-1.10.21/js/jquery.dataTables.min.js',
 				'assets/js/plugins/datatables/DataTables-1.10.21/js/dataTables.bootstrap4.min.js',
 				'assets/js/plugins/auto-numeric/AutoNumeric.min.js',
+				'assets/JSPrintManager/scripts/JSPrintManager.js',
 				'assets/js/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js'
 			),
 			'scripts' 		=> array(
@@ -79,6 +80,16 @@ class Faktur extends GT_Controller {
 		$this->html_head($head);
 		$this->load->view($this->module['url'] . '/html/form', $data);
 		$this->html_foot($foot);
+	}
+	public function bill_print()
+	{
+		$this->output->set_output($this->Faktur_model->render_text_print($this->input->post(NULL)));
+	}
+	public function struk_print()
+	{
+		$sales_id = $this->input->get('pk');
+		$text = $this->Faktur_model->struk_print($sales_id);
+		$this->output->set_output($text);
 	}
 	public function update($pk = null){
 		$this->module['action'] = $this->module['url'] . '/crud/update';
@@ -107,6 +118,7 @@ class Faktur extends GT_Controller {
 				'assets/js/plugins/bootstrap-notify/bootstrap-notify.min.js',
 				'assets/js/plugins/datatables/DataTables-1.10.21/js/jquery.dataTables.min.js',
 				'assets/js/plugins/datatables/DataTables-1.10.21/js/dataTables.bootstrap4.min.js',
+				'assets/JSPrintManager/scripts/JSPrintManager.js',
 				'assets/js/plugins/auto-numeric/AutoNumeric.min.js',
 				'assets/js/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js'
 			),

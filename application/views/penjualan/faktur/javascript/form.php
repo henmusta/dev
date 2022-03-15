@@ -1,7 +1,22 @@
 <?php $penjualan = isset($data) ? $data : (object)[];?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"></script>
 <script type="text/javascript">
 $(function(){
 	'use strict'
+	function appendFormdata(FormData, data, name) {
+			name = name || '';
+			if (typeof data === 'object') {
+				$.each(data, function(index, value) {
+					if (name == '') {
+						appendFormdata(FormData, value, index);
+					} else {
+						appendFormdata(FormData, value, name + '[' + index + ']');
+					}
+				})
+			} else {
+				FormData.append(name, data);
+			}
+		}
 	$(document).ready(function(){
 		document.addEventListener("keypress", function(e) {
 			if (e.target.tagName !== "INPUT") {
@@ -59,7 +74,7 @@ $(function(){
 							dataType 	: 'json',
 							data: 'kode_produk=' + value,
 							success: function(response){   
-								
+							
 									$("#nama_barang").val(response.nama);
 									$("#kode_barang").val(response.kode_produk);
 									$("#harga").val(response.harga_jual);
@@ -67,7 +82,9 @@ $(function(){
 									$("#id_produk").val(response.id);
 									$("#text_produk").val(response.text);
 									$("#saldo_produk").val(response.saldo);
-									$('#barcode_form').modal('show');
+									if(response.id != null){
+										$('#barcode_form').modal('show');
+									}
 									new AutoNumeric('#harga',currenciesOptions);
 									new AutoNumeric('#total_harga',currenciesOptions);
 							},
@@ -746,6 +763,28 @@ $(function(){
 						btnSubmit.removeClass("disabled").html(btnSubmitHtml);
 						let timeout = 1000;
 						if ( response.status == "success" ){
+							if($("input[name='print']:checked").val() == 1){
+							  $.ajax({
+								cache 		: false,
+								processData : false,
+								contentType : false,
+								type 		: 'POST',
+								url 		: '<?= $module['url'];?>/bill-print',
+								data 		: new FormData(form),
+								beforeSend:function() {
+									btnSubmit.addClass("disabled").html("<i class='fas fa-spinner fa-pulse fa-fw'></i> Loading ... ");
+								},
+								error 		: function(){
+									btnSubmit.removeClass("disabled").html(btnSubmitHtml);
+									$.notify({ icon: 'fa fa-exclamation mr-1', message: 'Server\'s response not found'}, {type: 'danger'});
+								},
+								success 	: function(response) {
+									btnSubmit.removeClass("disabled").html(btnSubmitHtml);
+									sendPrinterData(response);
+								}
+							  });
+							}
+					
 							$.notify( { icon: 'fa fa-check mr-1', message: response.message}, {type: 'success'});
 							setTimeout(function(){
 								if(response.redirect == "reload"){
@@ -755,6 +794,7 @@ $(function(){
 								} else if(response.redirect != "") {
 									location.href = response.redirect;
 								}
+								// sendPrinterData(response);
 							},timeout);
 						} else {
 							$.notify( {icon: 'fa fa-exclamation mr-1', message: response.message},{type: 'danger'});
@@ -763,6 +803,77 @@ $(function(){
 				});
 			}
 		});
+
+		function jspmWSStatus() {
+			if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+				return true;
+			else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+				alert('JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm');
+				return false;
+			}
+			else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+				alert('JSPM has blocked this website!');
+				return false;
+			}
+        }
+
+		//    $('button#btn-bill-print').click(function(e){
+		// 		e.stopPropagation();
+		// 		e.preventDefault();
+		// 		let form 			= document.getElementById('form'),
+		// 		btnSubmit 		= $(this),
+		// 		btnSubmitHtml 	= btnSubmit.html(),
+		// 		formData 		= new FormData(form),
+		// 		items_data 		= { produk_items : tableItems.data() };
+		// 		// console.log(formData);
+			
+		// 	});
+
+					function sendPrinterData(response){
+				       JSPM.JSPrintManager.auto_reconnect = true;
+						JSPM.JSPrintManager.start();
+						JSPM.JSPrintManager.WS.onStatusChanged = function() {
+						if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
+							var cpj = new JSPM.ClientPrintJob();
+							var esc = '\x1B'; //ESC byte in hex notation
+							var newLine = '\x0A'; //LF byte in hex notation
+							var cmds = esc + "@"; //Initializes the printer (ESC @) //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+							cmds += esc + '!' + '\x00';
+							cmds += response + newLine + newLine + "\x1B@\x1DV1";
+							cpj.clientPrinter = new JSPM.InstalledPrinter("EPSON TM-T82X Receipt");
+							cpj.printerCommands = cmds;
+							cpj.sendToClient();
+							console.log(cmds);
+						}
+					  }
+			        }
+				// sendPrinterData();
+
+		// 	function print(o) {
+        // if (jspmWSStatus()) {
+        //     //Create a ClientPrintJob
+        //     var cpj = new JSPM.ClientPrintJob();
+        //     //Set Printer type (Refer to the help, there many of them!)
+        //     if ($('#useDefaultPrinter').prop('checked')) {
+        //         cpj.clientPrinter = new JSPM.DefaultPrinter();
+        //     } else {
+        //         cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName').val());
+        //     }
+        //     //Set content to print...
+        //     //Create ESP/POS commands for sample label
+        //     var esc = '\x1B'; //ESC byte in hex notation
+        //     var newLine = '\x0A'; //LF byte in hex notation
+        
+        //     var cmds = esc + "@"; //Initializes the printer (ESC @)
+        //     cmds += esc + '!' + '\x00'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+		// 	cmds += res;
+        //     cpj.printerCommands = cmds;
+        //     //Send print job to printer!
+        //     cpj.sendToClient();
+        // }
+    // }
+
+		
 	});
 });
 </script>

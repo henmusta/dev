@@ -184,6 +184,10 @@ class Produk_model extends CI_Model {
 
 			if( $data_is_valid == TRUE ){
 				$result['message'] 		= "Data Gagal disimpan.";
+				$max = $this->db->select('IF(ISNULL(max(id)), 1,  max(id) + 1) as max_id')->from('produk')->get()->row();
+				$date = date('ym');
+				$noUrutNext = $date . "-" . str_pad($max->max_id, 1, "0", STR_PAD_LEFT) . "-".$produk['id_pemasok']. "-" . $produk['id_cabang'];
+				$produk['kode_produk'] = $noUrutNext;
 				if( $this->db->insert('produk', $produk) ){
 					$insert_id = $this->db->insert_id();
 					$result['status'] 	= TRUE;
