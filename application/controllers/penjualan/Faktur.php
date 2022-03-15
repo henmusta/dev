@@ -173,7 +173,7 @@ class Faktur extends GT_Controller {
 			'aplikasi'=> $this->Aplikasi_model->get(),
 			'penjualan'		=> $this->Faktur_model->single_combine($pk)
 		);
-		$head = array(
+		$head = array( 
 			'stylesheets'		=> array(),
 			'heading' => array('title'=>$this->module['name'])
 		);

@@ -189,6 +189,10 @@ class GT_Controller extends CI_Controller {
 									[ 
 										'title' 	=> 'Laporan Retur Penjualan',
 										'href'		=> 'laporan/laporan-retur-penjualan'
+									],
+									[ 
+										'title' 	=> 'Laporan Penjualan Per Pelanggan',
+										'href'		=> 'laporan/laporan-penjualan-pelanggan'
 									]
 								]
 							],
@@ -511,6 +515,10 @@ class GT_Controller extends CI_Controller {
 										[ 
 											'title' 	=> 'Laporan Retur Penjualan',
 											'href'		=> 'laporan/laporan-retur-penjualan'
+										],
+										[ 
+											'title' 	=> 'Laporan Penjualan Per Pelanggan',
+											'href'		=> 'laporan/laporan-penjualan-pelanggan'
 										]
 									]
 								],
@@ -722,6 +730,10 @@ class GT_Controller extends CI_Controller {
 										[ 
 											'title' 	=> 'Laporan Retur Penjualan',
 											'href'		=> 'laporan/laporan-retur-penjualan'
+										],
+										[ 
+											'title' 	=> 'Laporan Penjualan Per Pelanggan',
+											'href'		=> 'laporan/laporan-penjualan-pelanggan'
 										]
 									]
 								],

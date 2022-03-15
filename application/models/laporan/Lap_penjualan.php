@@ -294,8 +294,40 @@ LEFT JOIN (SELECT SUM(produk.`laba` * rincian_retur_penjualan.qty) AS laba,
 			"data1"				=> $totalretur 
 		); unset($results,$params,$totalData,$totalFiltered,$data);
 	}
-	
-
+	public function getPerPelanggan($date_start, $date_end, $cabang_id, $customer_id = NULL)
+	{
+		$query = "
+		SELECT SQL_CALC_FOUND_ROWS *, 
+				IFNULL(retur.laba,0) AS laba_retur, 
+				pelanggan.`alamat` AS alamat, 
+				pelanggan.nama AS nama_p, 
+				penjualan.`nomor` AS nomor, 
+				penjualan.`total_rincian` AS jumlah, 
+				penjualan.`diskon` AS diskon, 
+				penjualan.`chek` AS chek, 
+				(penjualan.laba_akhir) AS laba, 
+				(penjualan.laba_akhir - penjualan.diskon) AS laba_akhir, 
+				penjualan.`total_tagihan` AS total 
+		FROM rincian_penjualan 
+		LEFT JOIN penjualan ON penjualan.id = rincian_penjualan.id_penjualan 
+		LEFT JOIN pelanggan ON pelanggan.id = penjualan.id_pelanggan 
+		LEFT JOIN produk ON produk.id=rincian_penjualan.id_produk 
+		LEFT JOIN (SELECT SUM(produk.`laba` * rincian_retur_penjualan.qty) AS laba, 
+		penjualan.`id` AS id FROM penjualan 
+		LEFT JOIN retur_penjualan ON retur_penjualan.id_penjualan = penjualan.`id` 
+		LEFT JOIN rincian_retur_penjualan ON rincian_retur_penjualan.`id_retur_penjualan` = retur_penjualan.`id` 
+		LEFT JOIN produk ON produk.id = rincian_retur_penjualan.`id_produk` 
+		WHERE penjualan.`tgl_nota` = '".$date_start."' AND penjualan.id_cabang = '5' 
+		GROUP BY penjualan.`id`) AS retur ON retur.id = penjualan.id 
+		WHERE rincian_penjualan.id is not null AND (DATE(penjualan.`tgl_nota`) BETWEEN DATE('".$date_start."') AND DATE('".$date_end."')) 
+		AND penjualan.id_cabang = '".$cabang_id."' 
+		";
+		if ($customer_id != NULL) {
+			$query .= "AND penjualan.id_pelanggan = '".$customer_id."'";
+		}
+		$query .= "GROUP BY penjualan.id; ";
+		return $this->db->query($query)->result();
+	}
 	
 
 }
