@@ -28,13 +28,12 @@ class Printer extends CI_Controller
 	  if($num_rows > 0) // jika data ada di database
 	  {
         $pdf = new FPDF('L', 'pt', array(595.28, 421.45));
-        $pdf->AliasNbPages();
-        $pdf->AddPage();
         foreach ($products as $key => $rows) {
-
-            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->AddPage();
+            $pdf->SetTopMargin(20);
+            $pdf->SetFont('Arial', 'B', 13);
             $pdf->Cell(50, 10, $list->cabang->nama, 0, 0);
-            $pdf->SetFont('Arial', 'B', 8);
+            $pdf->SetFont('Arial', 'B', 10);
             $pdf->Cell(350, 15, '');
             $pdf->Cell(0, 10, 'Bandar Lampung , '. date('d M Y', strtotime($list->tgl_nota)), 0, 1);
             $pdf->Cell(72, 10, 'Komplek Pertokoan Pasar Tengah', 0, 0);
@@ -48,7 +47,7 @@ class Printer extends CI_Controller
             $pdf->Cell(0, 10, $list->pelanggan->alamat, 0, 1);
             $pdf->Cell(72, 10, 'Wa         : '.$list->cabang->wa, 0, 1);
     
-            $pdf->SetFont('Arial', 'B', 8);
+            $pdf->SetFont('Arial', 'B', 10);
             $pdf->Cell(282, 10, 'FAKTUR JUAL', 0, 0, 'R');
             $pdf->Cell(118);
             $pdf->Cell(50, 10, '', 0, 0, 'L');
@@ -82,9 +81,7 @@ class Printer extends CI_Controller
                 $pdf->Cell(200, 0, '', 0,0,'L');
                 $pdf->Cell(90, 0, '', 0,0,'R');
                 $pdf->Cell(90, 0, '', 0,0,'R');
-                $pdf->Ln(0);
-                $pdf->Cell(189, 20, '', 0, 1);
-                $pdf->Ln(5);
+                $pdf->Ln(10);
             }
             
             
@@ -97,7 +94,7 @@ class Printer extends CI_Controller
                 $total_harga += $row->harga;
                 $pdf->Cell(50, 5, $no++, 0,0,'C');
                 $pdf->Cell(100, 5, $row->qty, 0,0,'L');
-                $pdf->Cell(200, 5, $row->nama, 0,0,'L');
+                $pdf->Cell(200, 5, substr($row->nama_pemasok." || ".$row->nama, 0, 50), 0,0,'L');
                 $pdf->Cell(90, 5, number_format($row->harga), 0,0,'R');
                 $pdf->Cell(90, 5, number_format($row->total), 0,1,'R');
                 $pdf->Ln(5);
@@ -107,12 +104,12 @@ class Printer extends CI_Controller
                     $pdf->Cell(50, 10, '***', 0,1,'C');
                 }
             }
-            $pdf->Cell(189, 5, '-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------', 0, 1);
+            $pdf->Cell(189, 5, '-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------', 0, 0);
             
             if ($key == $last) {
                 $pdf->SetFont('Arial', '', 8);
-                if ($total_barang > 10) {
-                    $pdf->Ln($total_barang + 60);
+                if ($total_barang > 14) {
+                    $pdf->Ln($total_barang + 67);
                 }
                 $pdf->Cell(50, 20, 'Total :', 0, 0);
                 $pdf->Cell(350, 20, number_format($total_qty), 0, 0);
@@ -344,9 +341,6 @@ class Printer extends CI_Controller
 
 
 	
-
-
-
 
 
 
