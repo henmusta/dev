@@ -1,8 +1,137 @@
 <?php $penjualan = isset($data) ? $data : (object)[];?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"></script>
 <script type="text/javascript">
 $(function(){
 	'use strict'
+	function appendFormdata(FormData, data, name) {
+			name = name || '';
+			if (typeof data === 'object') {
+				$.each(data, function(index, value) {
+					if (name == '') {
+						appendFormdata(FormData, value, index);
+					} else {
+						appendFormdata(FormData, value, name + '[' + index + ']');
+					}
+				})
+			} else {
+				FormData.append(name, data);
+			}
+		}
 	$(document).ready(function(){
+		document.addEventListener("keypress", function(e) {
+			if (e.target.tagName !== "INPUT") {
+				var input = document.querySelector("#code_id_value");
+				input.focus();
+				input.value = e.key;
+				e.preventDefault();
+			}
+		});
+
+
+		const currenciesOptions = {
+			unformatOnSubmit            : true,
+			decimalCharacterAlternative: ".",
+			decimalPlaces: 0,
+			//minimumValue: "0",
+		};
+
+		const 	totalItems 			= new AutoNumeric('#totalItems',currenciesOptions),
+				discountItems 		= new AutoNumeric('#discountItems',currenciesOptions),
+				billItems 			= new AutoNumeric('#billItems',currenciesOptions),
+				totalPayments 		= new AutoNumeric('#totalPayments',currenciesOptions),
+				totalretur	 		= new AutoNumeric('#totalretur',currenciesOptions),
+				harga	 		    = new AutoNumeric('#harga',currenciesOptions),
+				total_harga	 		= new AutoNumeric('#total_harga',currenciesOptions),
+				totretur	 		= new AutoNumeric('#totretur',currenciesOptions),
+				totalcek	 		= new AutoNumeric('#totalcek',currenciesOptions),
+				totalReceivable 	= new AutoNumeric('#totalReceivable',currenciesOptions);		
+
+		var delay = (function(){
+		var timer = 0;
+		return function(callback, ms){
+			clearTimeout(timer);
+			timer = setTimeout(callback,ms);
+		};
+    	})();
+		
+		$( "#code_id_value" ).on('input', function(e) {
+			e.stopPropagation();
+			var $this = $(this);
+			var value = $this.val();
+		
+			if (value.length > 0) {
+				value = parseInt(value);
+			}
+			else {
+				value = "";
+			}
+				if (value !== '') {
+					delay(function(){
+					
+						$.ajax({
+							type: 'POST',
+							url : '<?= $module['url'];?>/api-data/get_kode_produk',
+							dataType 	: 'json',
+							data: 'kode_produk=' + value,
+							success: function(response){   
+							
+									$("#nama_barang").val(response.nama);
+									$("#kode_barang").val(response.kode_produk);
+									$("#harga").val(response.harga_jual);
+									$("#total_harga").val(response.harga_jual);
+									$("#id_produk").val(response.id);
+									$("#text_produk").val(response.text);
+									$("#saldo_produk").val(response.saldo);
+									if(response.id != null){
+										$('#barcode_form').modal('show');
+									}
+									new AutoNumeric('#harga',currenciesOptions);
+									new AutoNumeric('#total_harga',currenciesOptions);
+							},
+							error: function (xhr, ajaxOptions, thrownError){
+							console.log(thrownError);
+							}
+						});
+					}, 800);
+				}
+	
+		});
+
+		$("#qty, #harga").on("keyup change", function(e) {
+			let harga_new = new AutoNumeric('#harga',currenciesOptions);
+			let harga_total = harga_new.getNumber() * $("#qty").val();
+			// alert($("#qty").val());
+			total_harga.set(harga_total);
+		});
+		// $("#code_id_value").on("keyup change", function(e) {
+		// 	$('#barcode_form').modal('show');
+		// 	if(e.keyCode==13)
+		// 	{    
+		// 	console.log('Event keyUp on enter');
+		// 		var text=$('#text').val(); 
+		// 		$.ajax({
+				
+		// 			type:'POST',
+		// 			url:'insert_msg.php',
+		// 			data:{text:text},
+
+		// 			success:function(){    alert('hello');
+		// 				$('#scroll_msg').load('display_msg.php');
+		// 				$('#text').val('');
+		// 			} 
+		// 		});
+		// 	} 
+		// })
+		$('#barcode_form').on('hidden.bs.modal', function () {
+			$("#code_id_value").val('');
+			$("#nama_barang").val('');
+			$("#kode_barang").val('');
+			$("#harga").val('');
+		});
+		// $('#barcode_form').addEventListener('hidden.bs.modal', function (event) {
+		// 	// 
+		// 	alert("waw");
+        // });
 		$("#btnretur").on('click', function(){
 			$("#table-retur").attr("hidden",false);
 			$("#clsretur").attr("hidden",false);
@@ -59,51 +188,10 @@ $(function(){
 		  }
 		 });
 
-		 $('.nama-pelanggan').on('keyup',function(){
-			//  alert($('#id_cabang').val());
-				// $('.select2-produk').val(null).trigger('change');
-			});
-		// $('#nama-pelanggan').focusout(function(){
-		// 	let nama = $(this).val();
-		// 	$.post(
-		// 		'<?= $module['url'];?>/api-data/get-kode-pelanggan-by-nama',
-		// 		{nama:nama}, function(response){
-		// 			if(response.status == 'success'){
-		// 				$('#alamat-pelanggan').val(response.alamat_pelanggan);
-		// 				$('#id_pelanggan').val(response.id);
-		// 			} else {
-		// 				$('#alamat-pelanggan').val(null);
-		// 				$('#id_pelanggan').val();
-		// 			}
-		// 		},
-		// 		'json'
-		// 		);
-		// });
+    		 $('.nama-pelanggan').on('keyup',function(){
 
-		// $('#select2-penjualan').select2({
-		// 	ajax : {
-		// 		url 		: '<?= $module['url'];?>/api-data/select2-penjualan',
-		// 		dataType 	: 'json',
-		// 		type 		: 'POST',
-		// 		data 		: function (params) {
-		// 					var query = {
-		// 						search: params.term,
-		// 						type: 'public'
-		// 					}
-		// 					return $.extend({},params,{ id_pelanggan: $('#select-pelanggan').val() });
-		// 				},
-		// 		processResults: function (myData) {
-		// 			var data = $.map(myData.results, function (obj) {
-		// 				obj.text = obj.text || obj.id +' / '+ obj.nomor;
-		// 				obj.id   = obj.id
-		// 				return obj;
-		// 			});
-		// 			return {
-		// 				results : data
-		// 			};
-		// 		}
-		// 	}
-		// });
+		    });
+
 
 		$('#select-pelanggan').select2({
 			ajax : {
@@ -142,21 +230,7 @@ $(function(){
 					}
 				});
 
-		const currenciesOptions = {
-			unformatOnSubmit            : true,
-			decimalCharacterAlternative: ".",
-			decimalPlaces: 0,
-			//minimumValue: "0",
-		};
-
-		const 	totalItems 			= new AutoNumeric('#totalItems',currenciesOptions),
-				discountItems 		= new AutoNumeric('#discountItems',currenciesOptions),
-				billItems 			= new AutoNumeric('#billItems',currenciesOptions),
-				totalPayments 		= new AutoNumeric('#totalPayments',currenciesOptions),
-				totalretur	 		= new AutoNumeric('#totalretur',currenciesOptions),
-				totretur	 		= new AutoNumeric('#totretur',currenciesOptions),
-				totalcek	 		= new AutoNumeric('#totalcek',currenciesOptions),
-				totalReceivable 	= new AutoNumeric('#totalReceivable',currenciesOptions);
+	
 
 
 		$('#table-retur').on('changeTotalItem',	function(){
@@ -221,8 +295,16 @@ $(function(){
 			columns : [
 				{ 
 					data : 'id_produk',
-					render : function ( columnData, type, rowData, meta ) {
-						let selectedOption = (columnData != null && columnData != '' && columnData != 0) ? `<option selected="selected" value="`+ columnData +`">`+ rowData.kode_pemasok+ ` / ` + rowData.nama_pemasok +  ` / ` + rowData.nama_produk +`</option>`: ``;
+					name : 'produk_id',
+					render : function ( columnData, type, rowData, meta ) {	
+
+					let selectedOption;
+					if(rowData.nama_produk != null || rowData.nama_produk != '' || rowData.nama_produk != 0){
+						selectedOption = `<option selected="selected" value="`+ columnData +`">`+ $("#text_produk").val() + `</option>`;
+					}else{
+						selectedOption = (columnData != null && columnData != '' && columnData != 0) ? `<option selected="selected" value="`+ columnData +`">`+ rowData.kode_pemasok+ ` / ` + rowData.nama_pemasok +  ` / ` + rowData.nama_produk +`</option>`: ``;
+					}
+					
 						return String(`<select class="form-control select2-produk" value="`+ columnData +`" name="rincian[`+ meta.row +`][id_produk]" required="required">`+ selectedOption +`</select>`).trim();
 					}
 				},
@@ -263,6 +345,7 @@ $(function(){
 					className 	: 'text-right',
 					render 		: function ( columnData, type, rowData, meta ) {
 						let total = parseInt(rowData.harga) * parseInt(rowData.qty);
+						// alert(rowData.harga);
 						return String(`
 							<input id="item_total_` + meta.row + `" class="form-control text-right" value="`+ total +`" name="rincian[`+ meta.row +`][total]" readonly="readonly" data-column="total">
 						`).trim();
@@ -282,12 +365,15 @@ $(function(){
 			initComplete : function(settings, json){
 				let api = this.api();
 				$(api.table().footer()).find('.btn-add-row').click(function(){
-					api.row.add({ nama : '', harga : 0, qty : 1, item_stok : 0, total : 0 }).draw();
+					api.row.add({ id_produk : '', harga : 0, qty : 1, item_stok : 0, total : 0 }).draw();
 				});
-				// $(api.table().footer()).find('.btn-delete-row').click(function(){
-				// 	api.row( ':last' ).remove().draw();
-				// });
-
+				$('#add_item').click(function() {
+					let harga_new = new AutoNumeric('#harga',currenciesOptions);
+					let tot = harga_new.getNumber();
+					api.row.add({ id_produk : $("#id_produk").val() , harga :  tot,qty : $("#qty").val(),  saldo : $("#saldo_produk").val(),  total : 0}).draw();
+					$('#barcode_form').modal('hide');
+					// $('#table-items').trigger('changeTotalItem');
+                });
 				$('#discountItems').keyup(function(){
 					$('#table-items').trigger('changeTotalItem');
 				});
@@ -342,6 +428,7 @@ $(function(){
 				$(row).find('#item_harga_' + index + ', ' + '#item_qty_' + index).keyup(function(){
 					let harga 	= AutoNumeric.getNumber('#item_harga_' + index),
 						qty 		= AutoNumeric.getNumber('#item_qty_' + index);
+						// alert(harga);
 					AutoNumeric.getAutoNumericElement('#item_total_' + index).set(harga * qty);
 					$('#table-items').trigger('changeTotalItem');
 				});
@@ -676,6 +763,28 @@ $(function(){
 						btnSubmit.removeClass("disabled").html(btnSubmitHtml);
 						let timeout = 1000;
 						if ( response.status == "success" ){
+							if($("input[name='print']:checked").val() == 1){
+							  $.ajax({
+								cache 		: false,
+								processData : false,
+								contentType : false,
+								type 		: 'POST',
+								url 		: '<?= $module['url'];?>/bill-print',
+								data 		: new FormData(form),
+								beforeSend:function() {
+									btnSubmit.addClass("disabled").html("<i class='fas fa-spinner fa-pulse fa-fw'></i> Loading ... ");
+								},
+								error 		: function(){
+									btnSubmit.removeClass("disabled").html(btnSubmitHtml);
+									$.notify({ icon: 'fa fa-exclamation mr-1', message: 'Server\'s response not found'}, {type: 'danger'});
+								},
+								success 	: function(response) {
+									btnSubmit.removeClass("disabled").html(btnSubmitHtml);
+									sendPrinterData(response);
+								}
+							  });
+							}
+					
 							$.notify( { icon: 'fa fa-check mr-1', message: response.message}, {type: 'success'});
 							setTimeout(function(){
 								if(response.redirect == "reload"){
@@ -685,6 +794,7 @@ $(function(){
 								} else if(response.redirect != "") {
 									location.href = response.redirect;
 								}
+								// sendPrinterData(response);
 							},timeout);
 						} else {
 							$.notify( {icon: 'fa fa-exclamation mr-1', message: response.message},{type: 'danger'});
@@ -693,6 +803,77 @@ $(function(){
 				});
 			}
 		});
+
+		function jspmWSStatus() {
+			if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+				return true;
+			else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+				alert('JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm');
+				return false;
+			}
+			else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+				alert('JSPM has blocked this website!');
+				return false;
+			}
+        }
+
+		//    $('button#btn-bill-print').click(function(e){
+		// 		e.stopPropagation();
+		// 		e.preventDefault();
+		// 		let form 			= document.getElementById('form'),
+		// 		btnSubmit 		= $(this),
+		// 		btnSubmitHtml 	= btnSubmit.html(),
+		// 		formData 		= new FormData(form),
+		// 		items_data 		= { produk_items : tableItems.data() };
+		// 		// console.log(formData);
+			
+		// 	});
+
+					function sendPrinterData(response){
+				       JSPM.JSPrintManager.auto_reconnect = true;
+						JSPM.JSPrintManager.start();
+						JSPM.JSPrintManager.WS.onStatusChanged = function() {
+						if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open) {
+							var cpj = new JSPM.ClientPrintJob();
+							var esc = '\x1B'; //ESC byte in hex notation
+							var newLine = '\x0A'; //LF byte in hex notation
+							var cmds = esc + "@"; //Initializes the printer (ESC @) //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+							cmds += esc + '!' + '\x00';
+							cmds += response + newLine + newLine + "\x1B@\x1DV1";
+							cpj.clientPrinter = new JSPM.InstalledPrinter("EPSON TM-T82X Receipt");
+							cpj.printerCommands = cmds;
+							cpj.sendToClient();
+							console.log(cmds);
+						}
+					  }
+			        }
+				// sendPrinterData();
+
+		// 	function print(o) {
+        // if (jspmWSStatus()) {
+        //     //Create a ClientPrintJob
+        //     var cpj = new JSPM.ClientPrintJob();
+        //     //Set Printer type (Refer to the help, there many of them!)
+        //     if ($('#useDefaultPrinter').prop('checked')) {
+        //         cpj.clientPrinter = new JSPM.DefaultPrinter();
+        //     } else {
+        //         cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName').val());
+        //     }
+        //     //Set content to print...
+        //     //Create ESP/POS commands for sample label
+        //     var esc = '\x1B'; //ESC byte in hex notation
+        //     var newLine = '\x0A'; //LF byte in hex notation
+        
+        //     var cmds = esc + "@"; //Initializes the printer (ESC @)
+        //     cmds += esc + '!' + '\x00'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+		// 	cmds += res;
+        //     cpj.printerCommands = cmds;
+        //     //Send print job to printer!
+        //     cpj.sendToClient();
+        // }
+    // }
+
+		
 	});
 });
 </script>

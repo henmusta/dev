@@ -19,3 +19,8 @@
         </div>
     </div>
 </div>
+<script>
+    $("input").on("paste",function(e){
+    	$("#test").focus();
+});
+    </script>

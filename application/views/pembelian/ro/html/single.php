@@ -33,75 +33,43 @@
                             </tr>
                             <tr>
                                 <th class="text-right" style="width: 60px;">No</th>
-                                <th>Produk</th>
-                                <th class="text-right" style="width: 120px;">Harga</th>
+                                <th style="width: 120px;">Produk</th>
                                 <th class="text-right" style="width: 120px;">Qty</th>
-                                <th class="text-right" style="width: 120px;">Total</th>
+                                <th class="text-right" style="width: 120px;">Penerimaan</th>
+                                <th class="text-right" style="width: 120px;">Sisa</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $no = 0; foreach($pembelian->rincian_pembelian AS $produk) : $no++; ?>
+                            <?php
+                             $sum_qty = 0;
+                             $sum_penerimaan = 0;
+                             $sum_sisa = 0;
+                             $no = 0; 
+                             foreach($pembelian->rincian_pembelian AS $produk) : $no++;
+                             $sum_penerimaan += $produk->qty_diterima;
+                             $sum_qty += $produk->qty;
+                             $sum_sisa += $produk->sisa_qty;
+                            ?>
                             <tr>
                                 <td class="text-right"><?= $no;?></td>
                                 <td><?= $produk->nama;?></td>
-                                <td class="text-right"><?= number_format($produk->harga);?></td>
                                 <td class="text-right"><?= number_format($produk->qty);?></td>
-                                <td class="text-right"><?= number_format($produk->total);?></td>
+                                <td class="text-right"><?= number_format($produk->qty_diterima);?></td>
+                                <td class="text-right"><?= number_format($produk->sisa_qty);?></td>
                             </tr>
                             <?php endforeach;?>
-                            <tr>
-                                <td colspan="4" class="font-w600 text-right">Subtotal</td>
-                                <td class="text-right"><?= number_format($pembelian->total_rincian);?></td>
-                            </tr>
-                            <tr>
-                                <td colspan="4" class="font-w600 text-right">Diskon</td>
-                                <td class="text-right"><?= number_format($pembelian->diskon);?></td>
-                            </tr>
-                            <tr>
-                                <td colspan="4" class="font-w600 text-right">Tagihan</td>
-                                <td class="text-right"><?= number_format($pembelian->total_tagihan);?></td>
-                            </tr>
+                          
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" class="font-w600 text-right">Subtotal</td>
+                                <td class="text-right"><?= number_format($sum_qty);?></td>
+                                <td class="text-right"><?= number_format($sum_penerimaan);?></td>
+                                <td class="text-right"><?= number_format($sum_sisa);?></td>
+                            </tr>
+                       </tfoot>
                     </table>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th colspan="8">Rincian Pembayaran</th>
-                            </tr>
-                            <tr>
-                                <th class="text-right" style="width: 60px;">No</th>
-                                <th>Metode</th>
-                                <th>Dari Kas/Bank</th>
-                                <th>Nomor Giro</th>
-                                <th>Tgl Giro</th>
-                                <th class="text-right" style="width: 120px;">Nominal</th>
-                                <th class="text-right" style="width: 120px;">Potongan</th>
-                                <th class="text-right" style="width: 120px;">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $no = 0; foreach($pembelian->rincian_pembayaran AS $row) : $no++; ?>
-                            <tr>
-                                <td class="text-right"><?= $no;?></td>
-                                <td><?= ucfirst($row->metode);?></td>
-                                <td><?= $row->nama_akun;?></td>
-                                <td><?= $row->nomor_giro;?></td>
-                                <td><?= $row->tgl_giro;?></td>
-                                <td class="text-right" style="width: 120px;"><?= number_format($row->nominal);?></td>
-                                <td class="text-right" style="width: 120px;"><?= number_format($row->potongan);?></td>
-                                <td class="text-right" style="width: 120px;"><?= number_format($row->total);?></td>
-                            </tr>
-                            <?php endforeach;?>
-                            <tr>
-                                <td colspan="7" class="font-w600 text-right">Total Pembayaran</td>
-                                <td class="text-right"><?= number_format($pembelian->total_pembayaran);?></td>
-                            </tr>
-                            <tr>
-                                <td colspan="7" class="font-w600 text-right">Sisa Tagihan</td>
-                                <td class="text-right"><?= number_format($pembelian->sisa_tagihan);?></td>
-                            </tr>
-                        </tbody>
-                    </table>
+     
                 </div>
             </div>
         </div>

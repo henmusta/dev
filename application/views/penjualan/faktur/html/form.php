@@ -6,17 +6,67 @@ $penjualan = isset($data) ? $data : (object)[];
 		<input type="hidden" name="pk" value="<?= isset($data->id) ? $data->id : NULL ;?>">
 		<input type="hidden" id="id_cabang" name="penjualan[id_cabang]" value="<?php echo $this->user->id_cabang; ?>">
 		<div class="block">
+			
 			<div class="block-header">
 				<h3 class="block-title"><?= isset($module['name']) ? $module['name'] : NULL ;?></h3>
 				<div class="block-options">
+						<div class="form-group">
+							<label class="rdiobox"><input name="print" value="1" id="print" type="radio"> <span>Print Eceran</span></label>
+							<label class="rdiobox"><input name="print" value="0" id="not_print" type="radio"checked> <span>Disable</span></label>
+						</div>
 					<div class="btn-group btn-group-sm">
 						<a href="javascript:history.back();" class="btn btn-outline-secondary"><i class="fa fa-reply"></i> Kembali</a>
 						<button type="submit" class="btn btn-outline-primary"><i class="fa fa-save"></i> Simpan</button>
+						<!-- <button id="btn-bill-print" class="btn btn-block btn-outline-primary" type="button"><i class="fas fa-print"></i> Print</button> -->
 					</div>
 				</div>
 			</div>
 			<div class="block-content">
-				<div class="row">
+			<div class="modal fade" id="barcode_form" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Tambah Produk</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+					<input type="text" class="form-control" id="id_produk" hidden>
+					<input type="text" class="form-control" id="text_produk" hidden>
+						<div class="form-group">
+							<label for="nama-barang" class="col-form-label">Nama Produk</label>
+							<input type="text" class="form-control" id="nama_barang" readonly>
+						</div>
+						<div class="form-group">
+							<label for="kode-barang" class="col-form-label">Kode Produk</label>
+							<input type="text" class="form-control" id="kode_barang" readonly>
+						</div>
+						<div class="form-group">
+							<label for="harga" class="col-form-label">Harga</label>
+							<input type="text" class="form-control" id="harga">
+						</div>
+						<div class="form-group">
+							<label for="recipient-name" class="col-form-label">Stok</label>
+							<input type="text" class="form-control" id="saldo_produk" readonly>
+						</div>
+						<div class="form-group">
+							<label for="recipient-name" class="col-form-label">Qty</label>
+							<input type="text" class="form-control" id="qty" value="1">
+						</div>
+						<div class="form-group">
+							<label for="recipient-name" class="col-form-label">Total Harga</label>
+							<input type="text" class="form-control" id="total_harga">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+						<button type="button" id="add_item" class="btn btn-primary">Tambah</button>
+					</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
 					<div class="col-md-6">
 						<div class="form-group form-row">
 							<label class="col-md-3">Tanggal Input</label>
@@ -83,6 +133,16 @@ $penjualan = isset($data) ? $data : (object)[];
 				
 					
 				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group form-row">
+							<label class="col-2">Kode Barcode</label>
+								<div class="col-md-8 ml-1">
+									<input id="code_id_value" type="text" class="form-control ml-5" placeholder="Gunakan Barcode Scanner" name="" value="">
+								</div>
+							</div>
+					</div>		
+				</div>			
 				<table id="table-items" class="table table-sm" width="100%">
 					<thead>
 						<tr>
