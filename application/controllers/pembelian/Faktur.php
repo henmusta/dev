@@ -86,7 +86,6 @@ class Faktur extends GT_Controller {
 		$this->module['action'] = $this->module['url'] . '/crud/update';
 		$data = array(
 			'module' 		=> $this->module,
-
 			'data'			=> $this->Faktur_model->single1($pk)
 		);
 		$head = array(
@@ -199,6 +198,8 @@ class Faktur extends GT_Controller {
 			->set_content_type('Application/json')
 			->set_output(json_encode($response));
 	}
+
+	
 	/* API DATA */
 	public function api_data($vendor_name = null){
 

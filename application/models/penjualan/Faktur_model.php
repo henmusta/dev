@@ -79,10 +79,9 @@ class Faktur_model extends CI_Model {
 		SUM(IFNULL(`stok`.`qty`,0)) + rincian_penjualan.qty AS `saldo`')
 		     ->from('produk')
 			 ->join('pemasok','produk.id_pemasok=pemasok.id','left')
-			->join('stok','stok.`id_produk` = produk.`id`','left')
-
+			 ->join('stok','stok.`id_produk` = produk.`id`','left')
 			->join('rincian_penjualan','produk.id=rincian_penjualan.id_produk','left')
-			->where(array('rincian_penjualan.id_penjualan'=>$penjualan->id))
+			->where(array('rincian_penjualan.id_penjualan'=>$penjualan->id, 'stok.status_ro'=> 1))
 			->group_by('rincian_penjualan.id')->get()->result();
 
 		$penjualan->pelanggan = $this->db->from('pelanggan')->where(['id'=>$penjualan->id_pelanggan])->get()->row();
@@ -160,6 +159,26 @@ class Faktur_model extends CI_Model {
 		}
 		return $result;
 	}
+
+	public function get_kode_produk($config = []){
+		extract($config);
+		$pk = isset($params['kode_produk']) ? (int)$params['kode_produk']:0;
+
+		// $penjualan = (object)[
+		// 	'total_tagihan'=>0,
+		// 	'total_pelunasan'=>0,
+		// 	'sisa_tagihan'=>0
+		// ];
+		if($result = $this->db
+		->select('produk.*, CONCAT(pemasok.nama," / ", produk.nama) as text,  SUM(IFNULL(`stok`.`qty`,0)) AS `saldo`')
+		->from('produk')
+		->join('pemasok', 'pemasok.id = produk.id_pemasok', 'left')
+		->join('stok', 'stok.`id_produk` = produk.`id`', 'left')
+		->where(['kode_produk'=>$pk, 'produk.status'=> "1"])->get()){
+			return $result->row();
+		}
+		return $kode_produk;
+	} 
 
 	public function datatable($config = array()){
 		extract($config);
@@ -350,7 +369,7 @@ class Faktur_model extends CI_Model {
 		$from 			= "FROM `produk` ";
 		$join			= "INNER JOIN `pemasok` ON `pemasok`.`id` = `produk`.`id_pemasok` 
 						   INNER JOIN stok ON stok.`id_produk` = produk.`id` ";
-		$where 			= "WHERE `produk`.`id` IS NOT NULL ";
+		$where 			= "WHERE produk.status = '1' ";
 		$term = isset($params['term']) ? $this->db->escape_str($params['term']) : (isset($params['q']) ? $this->db->escape_str($params['q']) : null);
 		if(isset($term) && !empty($term)){
 			$where .= " AND (pemasok.kode LIKE '%". $term ."%' OR produk.`nama` LIKE '%". $term ."%'  OR pemasok.`nama` LIKE '%". $term ."%') ";
@@ -363,7 +382,7 @@ class Faktur_model extends CI_Model {
 		$order_by 		= "ORDER BY `produk`.`id` ASC ";
 		$having			= "HAVING SUM(stok.`qty`) > 0 ";
 		$result_total	= $this->db->query($select_total . $from . $join . $where . $group_by . $having .  ";");
-		$total_data 	= $result_total->row()->total;
+		$total_data 	= $result_total->row()->total ?? 0;
 		$total_page		= ceil((int)$total_data/$row_per_page);
 		$page 			= isset($params['page']) ? (int)$params['page'] : 1;
 		$offset 		= (($page - 1) * $row_per_page);
@@ -375,6 +394,222 @@ class Faktur_model extends CI_Model {
 		);
 		$data->free_result();
 	}
+
+	public function struk_print($input){
+		// $sales_id = $this->input->post('pk') != null ? $this->input->post('pk') : $this->input->get('pk');
+		// return $this->Sales_model->struk_print($sales_id);
+	}
+	public function render_text_print2($data){
+		$total = $no = 0;
+		$lines = array($data);
+
+		extract($data);
+		$text = text_align( $this->session->cabang->nama, 48, 'center');
+		array_push($lines,$text);
+		$text = text_align($this->session->cabang->telp, 48, 'center');
+		array_push($lines,$text);
+		$text = text_align($this->session->cabang->wa, 48, 'center');
+		array_push($lines,$text);
+		$text = text_align($this->session->cabang->alamat, 48, 'center');
+		array_push($lines,$text);
+
+		array_push($lines,str_pad('-', 48, '-'));
+
+		$text = text_align('Nomor Nota', 5, 'left');
+		$text .= text_align(':', 2, $align = 'left');
+		$text .= text_align($penjualan['nomor'], 2, 'right');
+		array_push($lines,$text);
+
+		$text = text_align('Kasir', 5, 'left');
+		$text .= text_align(':', 2, $align = 'left');
+		$text .= text_align($this->session->user->nama, 2, 'right');
+		array_push($lines,$text);
+
+		$text = text_align('Tgl', 5, 'left');
+		$text .= text_align(':', 2, 'left');
+		$text .= text_align($penjualan['tgl_nota'], 2, 'right');
+		array_push($lines,$text);
+
+		array_push($lines,str_pad('-', 48, '-'));
+		$text = text_align("Nama Produk", 10, 'left') . ' ';
+		$text .= text_align("Harga", 10, 'left') . ' ';
+		$text .= text_align("Qty", 8, 'left') . ' ';
+		$text .= text_align("Total" , 10, 'right');
+		array_push($lines,$text);
+		array_push($lines,str_pad('-', 48, '-'));
+
+		$total_items = $total_diskon = $total_tagihan = 0;
+		if( isset($rincian) && count($rincian) > 0 ){
+			foreach($rincian AS $item){
+			
+				$product_names 			= preg_replace("/\s++/"," ", 'asem');
+				$product_name_split 	= explode("<--x-->", wordwrap($product_names,14,"<--x-->"));
+
+				$text = text_align($product_name_split[0], (15 - 1), 'left')  . ' ';
+				$text .= text_align(number_format($item['harga']), 10, 'right');
+				$text .= text_align($item['qty'], (5 - 1), 'left') . ' ';
+				$text .= text_align(number_format($item['total']), 10, 'right');
+				array_push($lines,$text);
+
+				array_shift($product_name_split);
+				if(count($product_name_split) > 1){
+					foreach($product_name_split AS $product_name){
+						$text = text_align(' ', (5 - 1), 'left') . ' ';
+						$text .= text_align($product_name, (15 - 1), 'left')  . ' ';
+						$text .= text_align(' ', 10, $align = 'right');
+						array_push($lines,$text);
+					}
+				}
+
+				$total_items += $item['qty'] * $item['harga'];
+
+			}
+
+		}
+		$total_tagihan = $total_items - $penjualan['diskon'];
+
+// 		$total_tax = $total_service = ($total_tagihan * 0.1);
+		
+		// $total_tax = $total_service = 0;
+		// $total_tagihan = $total_tagihan + $total_tax + $total_service;
+
+		array_push($lines,str_pad('-', 30, '-'));
+		$text = text_align('Item',(15 - 1), 'left') . ' ';
+		$text .= text_align(number_format($total_items), 15, 'right');
+		array_push($lines,$text);
+		$text = text_align('Diskon',(15 - 1), 'left') . ' ';
+		$text .= text_align(number_format($penjualan['diskon']), 15, 'right');
+		array_push($lines,$text);
+		$text = text_align('Tagihan',(15 - 1), 'left') . ' ';
+		$text .= text_align(number_format($total_tagihan), 15, 'right');
+		array_push($lines,$text);
+		array_push($lines,str_pad('-', 40, '-'));
+		for($i = 0; $i < 1; $i++){
+			array_push($lines,str_pad(' ', 40, ' '));
+		}
+		array_push($lines,text_align('Thank You!', 30, 'center'));
+		for($i = 0; $i < 3; $i++){
+			array_push($lines,str_pad(' ', 40, ' '));
+		}
+
+		$str = implode("\n",$lines);
+		// return $str . "\x1B@\x1DV1";
+		return $str;
+	}
+
+	public function render_text_print($data){
+		$total = $no = 0;
+		$lines = array();
+		extract($data);
+		$text = text_align( $this->session->cabang->nama, 48, 'center');
+		array_push($lines,$text);
+		$text = text_align($this->session->cabang->telp, 48, 'center');
+		array_push($lines,$text);
+		$text = text_align($this->session->cabang->wa, 48, 'center');
+		array_push($lines,$text);
+		$text = text_align($this->session->cabang->alamat, 48, 'center');
+		array_push($lines,$text);
+
+		array_push($lines,str_pad('-', 48, '-'));
+
+		$text = text_align('Nomor Nota', 5, 'left');
+		$text .= text_align(':', 2, $align = 'left');
+		$text .= text_align($penjualan['nomor'], 2, 'right');
+		array_push($lines,$text);
+
+		$text = text_align('Kasir', 5, 'left');
+		$text .= text_align(':', 2, $align = 'left');
+		$text .= text_align($this->session->user->nama, 2, 'right');
+		array_push($lines,$text);
+
+		$text = text_align('Pelanggan', 5, 'left');
+		$text .= text_align(':', 2, $align = 'left');
+		$text .= text_align($pelanggan['nama'], 2, 'right');
+		array_push($lines,$text);
+
+		$text = text_align('Tgl', 5, 'left');
+		$text .= text_align(':', 2, 'left');
+		$text .= text_align($penjualan['tgl_nota'], 2, 'right');
+		array_push($lines,$text);
+
+		array_push($lines,str_pad('-', 48, '-'));
+		$text = text_align("Nama Produk", 15, 'left') . ' ';
+		$text .= text_align("Harga", 12, 'left') . ' ';
+		$text .= text_align("Qty", 8, 'right') . ' ';
+		$text .= text_align("Total" , 10, 'right');
+		array_push($lines,$text);
+		array_push($lines,str_pad('-', 48, '-'));
+
+
+		$total_items = $total_diskon = $total_tagihan = 0;
+		if( isset($rincian) && count($rincian) > 0 ){
+			foreach($rincian AS $item){
+				$produk = $this->db->from('produk')->where(['id'=>$item['id_produk']])->get()->row();
+				$product_names 			= preg_replace("/\s++/"," ", $produk->nama);
+				$product_name_split 	= explode("<--x-->", wordwrap($product_names,14,"<--x-->"));
+
+				$text = text_align($product_name_split[0], 14, 'left')  . ' ';
+				$text .= text_align(number_format($item['harga']), 10, 'right');
+				$text .= text_align($item['qty'], 8, 'right') . ' ';
+				$text .= text_align(number_format($item['total']), 14, 'right');
+				array_push($lines,$text);
+
+				array_shift($product_name_split);
+				if(count($product_name_split) > 1){
+					foreach($product_name_split AS $product_name){
+						$text = text_align($product_name, 14, 'left')  . ' ';
+						$text .= text_align(' ', 10, $align = 'right');
+						$text .= text_align(' ', 7, 'left') . ' ';
+						$text .= text_align(' ', 14, $align = 'right');
+						array_push($lines,$text);
+					}
+				}
+
+				$total_items += $item['qty'] * $item['harga'];
+			}
+
+		}
+
+		$total_pelunasan = 0;
+		if( isset($pelunasan) && count($pelunasan) > 0 ){
+			foreach($pelunasan AS $item){
+				$total_pelunasan += $item['nominal'] + $item['potongan'];
+			}
+
+		}
+		$total_tagihan = $total_items - $penjualan['diskon'];
+
+		array_push($lines,str_pad('-', 48, '-'));
+		$text = text_align('Item',(15 - 1), 'left') . ' ';
+		$text .= text_align(number_format($total_items), 33, 'right');
+		array_push($lines,$text);
+		$text = text_align('Diskon',(15 - 1), 'left') . ' ';
+		$text .= text_align(number_format($total_diskon), 33, 'right');
+		array_push($lines,$text);
+
+		$text = text_align('Tagihan',(15 - 1), 'left') . ' ';
+		$text .= text_align(number_format($total_tagihan), 33, 'right');
+		array_push($lines,$text);
+		$text = text_align('Pelunasan',(15 - 1), 'left') . ' ';
+		$text .= text_align(number_format($total_pelunasan), 33, 'right');
+		array_push($lines,$text);
+		$text = text_align('Sisa Tagihan',(15 - 1), 'left') . ' ';
+		$text .= text_align(number_format($total_tagihan - $total_pelunasan), 33, 'right');
+		array_push($lines,$text);
+		array_push($lines,str_pad('-', 48, '-'));
+		for($i = 0; $i < 1; $i++){
+			array_push($lines,str_pad(' ', 48, ' '));
+		}
+		array_push($lines,text_align('Thank You!', 48, 'center'));
+		for($i = 0; $i < 3; $i++){
+			array_push($lines,str_pad(' ', 48, ' '));
+		}
+
+		$str = implode("\n",$lines);
+		// return $str . "\x1B@\x1DV1";
+		return $str;
+	}
+
 
 	public function select2_produk_retur($config = array()){
 		extract($config);

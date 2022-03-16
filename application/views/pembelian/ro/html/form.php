@@ -41,11 +41,14 @@
 							<label class="col-md-3">Status Penerimaan Barang</label>
 							<div class="col-md-6">
 							    <select id="select2-status_ro" class="form-control" name="pembelian[status_ro]" required="required">
-								    <option value="0" <?php isset($pembelian->status_ro) && $pembelian->status_ro == '0' ? 'selected' : null; ?>>Draft</option>
+									<option value="0" <?php isset($pembelian->status_ro) && $pembelian->status_ro == '0' ? 'selected' : null; ?>>Draft</option>
                            			<option value="1" <?php isset($pembelian->status_ro) && $pembelian->status_ro == '1' ? 'selected' : null; ?>>Fix</option>
+									<!-- <option value="0">DRAFT</value>
+									<option value="1">FIX</value> -->
 								</select>
 							</div>
 						</div>
+			
 					</div>
 					<div class="col-md-6">
 						<div id="form-old">
@@ -65,23 +68,10 @@
 							</div>
 						</div>
 						<div>
-							<button id="btnpemasok" name="btnpemasok" type="button" class="btn btn-outline-primary"><i class="fa fa-plus"></i>Pemasok Baru</button>
-							<button id="clspemasok" name="clspemasok" type="button"  class="btn btn-outline-secondary" hidden="true"><i class="fa fa-reply"></i>Pemasok Lama</button>
+							<!-- <button id="btnpemasok" name="btnpemasok" type="button" class="btn btn-outline-primary"><i class="fa fa-plus"></i>Pemasok Baru</button>
+							<button id="clspemasok" name="clspemasok" type="button"  class="btn btn-outline-secondary" hidden="true"><i class="fa fa-reply"></i>Pemasok Lama</button> -->
 						</div><br>
-					<div class="form-new" id="form-new" name="form-new" hidden="true">
-						<div class="form-group form-row">
-							<label class="col-md-3">Nama Supplier</label>
-							<div class="col-md-9">
-								<input id="nama-pemasok1" type="text" class="form-control" name="pemasok[nama]" required="required" value="<?= isset($pembelian->pemasok->nama) ? $pembelian->pemasok->nama : NULL;?>" disabled="disabled">
-							</div>
-						</div>
-						<div class="form-group form-row">
-							<label class="col-md-3">Kode Supplier</label>
-							<div class="col-md-9">
-								<input id="kode-pemasok1" type="text" class="form-control" name="pemasok[kode]" required="required" value="<?= isset($pembelian->pemasok->kode) ? $pembelian->pemasok->kode : NULL;?>" disabled="disabled">
-							</div>
-						</div>
-						</div>
+				
 					</div>
 					
 				</div>
@@ -94,64 +84,16 @@
 							<th>Nama Barang</th>
 							<th>Harga</th>
 							<th>Qty</th>
-							<th>Total</th>
-							<th></th>
+							<th>Penerimaan</th>
+							<th>Sisa Qty</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
 					<tfoot>
-						<tr>
-							<th>
-								<div class="btn-group">
-									<button type="button" id="addrowbeli" class="btn btn-sm btn-outline-secondary btn-add-row"><i class="fa fa-plus"></i></button>
-								</div>
-							</th>
-							<th colspan="2" class="text-right">Subtotal</th>
-							<th><input id="totalItems" type="text" class="form-control text-right" readonly="readonly" value="<?= isset($pembelian->total_rincian) ? $pembelian->total_rincian : NULL;?>"></th>
-						</tr>
-						<tr>
-							<th colspan="3" class="text-right">Diskon</th>
-							<th><input id="discountItems" type="text" class="form-control redraw-table text-right" value="<?= isset($pembelian->diskon) ? $pembelian->diskon : NULL;?>" name="pembelian[diskon]"></th>
-						</tr>
-						<tr>
-							<th colspan="3" class="text-right">Total Tagihan</th>
-							<th><input id="billItems" type="text" class="form-control text-right" readonly="readonly"  value="0"></th>
-						</tr>
+					
 					</tfoot>
 				</table>
-				<table id="table-payments" class="table table-sm mt-4">
-					<thead>
-						<tr>
-							<th colspan="7">Rincian Pembayaran</th>
-						</tr>
-						<tr>
-							<th>Metode</th>
-							<th>Dari Kas/Bank</th>
-							<th>Nomor Giro</th>
-							<th>Tgl Giro</th>
-							<th>Potongan</th>
-							<th>Nominal</th>
-							<th>Total</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-					<tfoot>
-						<tr>
-							<th>
-								<div class="btn-group">
-									<button type="button" id="idbeli" class="btn btn-sm btn-outline-secondary btn-add-row"><i class="fa fa-plus"></i></button>
-								</div>
-							</th>
-							<th colspan="5" class="text-right">Total Pembayaran</th>
-							<th><input id="totalPayments" type="text" class="form-control text-right" readonly="readonly" value="<?= isset($pembelian->total_pembayaran) ? $pembelian->total_pembayaran : NULL;?>"></th>
-						</tr>
-						<tr>
-							<th colspan="6" class="text-right">Sisa Tagihan</th>
-							<th><input id="totalDebt" type="text" class="form-control text-right" readonly="readonly" value="0"></th>
-						</tr>
-					</tfoot>
-				</table>
+			
 			</div>
 		</div>
 	</form>

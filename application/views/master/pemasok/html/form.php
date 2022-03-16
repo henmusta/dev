@@ -16,19 +16,19 @@
 					</div>
 					<div class="block-content">						
 						<div class="form-group form-row align-items-center">
-							<label class="col-md-2 text-right">Kode</label>
+							<label class="col-md-2 text-right">Kode Supplier</label>
 							<div class="col-md-4">
 								<input type="text" class="form-control" name="pemasok[kode]" required="required" value="<?= isset($data->kode) ? $data->kode : NULL ;?>">
 							</div>
 						</div>
 						<div class="form-group form-row align-items-center">
-							<label class="col-md-2 text-right">Nama</label>
+							<label class="col-md-2 text-right">Nama Toko</label>
 							<div class="col-md-8">
 								<input type="text" class="form-control" name="pemasok[nama]" required="required" value="<?= isset($data->nama) ? $data->nama : NULL ;?>">
 							</div>
 						</div>
 						<div class="form-group form-row align-items-center">
-							<label class="col-md-2 text-right">Telp</label>
+							<label class="col-md-2 text-right">Nama Merk</label>
 							<div class="col-md-4">
 								<input type="text" class="form-control" name="pemasok[telp]" value="<?= isset($data->telp) ? $data->telp : NULL ;?>">
 							</div>
