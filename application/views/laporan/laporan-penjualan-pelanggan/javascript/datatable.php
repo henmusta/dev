@@ -7,6 +7,10 @@ $(function(){
 			filename 	: 'Laporan Stok ' + '<?= date('l, d F Y')?>'
 		};
 		var dt = $('#dt').DataTable({
+			dom: 'Bfrtip',
+			buttons: [
+				'copy', 'csv', 'excel', 'pdf', 'print'
+			],
 			rowGroup: {
                 startRender: function(rows, group) {
                     return '<span class="font-w600 fw-bold">' + group + '</span>';
