@@ -18,7 +18,11 @@ class Produk_model extends CI_Model {
 		return isset($result->total) && $result->total > 0 ? FALSE : TRUE;
 	}
 	public function single($pk){
-		$row = $this->db->get_where('produk',array('id'=>$pk))->row();
+		$row = $this->db
+			->select('produk.*, pemasok.telp, pemasok.kode as kode_p, cabang.kode as kode_cabang')
+			->join('pemasok', 'pemasok.id = produk.id_pemasok', 'left')
+			->join('cabang', 'cabang.id = produk.id_cabang', 'left')
+			->get_where('produk',array('produk.id'=>$pk))->row();
 		if(isset($row->id) && !empty($row->id) ){
 			$row->pemasok = $this->db->get_where('pemasok',array('id'=>$row->id_pemasok))->row();
 			return $row;
@@ -29,7 +33,12 @@ class Produk_model extends CI_Model {
 		// $id = array($kode);
 		// print_r($kode);
 		$barcode = (object)[];
-		$barcode = $this->db->from('produk')->where_in('id', explode(',', $kode))->get()->result();
+		$barcode = $this->db
+			->select('produk.*, pemasok.telp, pemasok.kode as kode_p, cabang.kode as kode_cabang')
+			->from('produk')
+			->join('pemasok', 'pemasok.id = produk.id_pemasok', 'left')
+			->join('cabang', 'cabang.id = produk.id_cabang', 'left')
+			->where_in('produk.id', explode(',', $kode))->get()->result();
 		return $barcode; 
 	}
 	public function datatable($config = array()){

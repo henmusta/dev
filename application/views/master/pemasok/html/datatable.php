@@ -15,9 +15,9 @@
 			<table id="dt" class="table table-sm table-vcenter table-bordered" width="100%">
 				<thead>
 					<tr>
-						<th>Kode</th>
-						<th>Nama</th>
-						<th>Telp</th>
+						<th>Kode Supplier</th>
+						<th>Nama Toko</th>
+						<th>Nama Merk</th>
 						<th>Email</th>
 						<th>Alamat</th>
 						<th>#</th>
