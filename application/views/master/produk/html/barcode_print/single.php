@@ -16,9 +16,9 @@
             <div class="fix">
                 <?php 
                 $generator = new Picqer\Barcode\BarcodeGeneratorDynamicHTML();
-                echo "Rp. ".number_format($barcode->harga_jual);
+                echo $barcode->telp . " / Rp. ".number_format($barcode->harga_jual * 12);
                 echo $generator->getBarcode($barcode->kode_produk, $generator::TYPE_CODE_128, 1, 14);
-                echo $barcode->kode_produk;
+                echo $barcode->kode_cabang."  ".$barcode->nama."  ".$barcode->kode_p;
                 ?>
             </div>
           </td>
