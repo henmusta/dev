@@ -46,10 +46,11 @@ class Produk_model extends CI_Model {
 		$columns 			= array('produk.kode_produk','produk.id','`pemasok`.`kode`', '`produk`.`kode_produk`' ,'`produk`.`nama`', '`produk`.`harga_beli`', '`produk`.`harga_jual`', '`produk`.`status`', '`produk`.`id`');
 		$select_total 		= "SELECT COUNT(`produk`.`id`) AS `total` ";
 		$select_filtered	= "SELECT FOUND_ROWS() AS `total` ";
-		$select 			= "SELECT SQL_CALC_FOUND_ROWS `produk`.*, `pemasok`.`kode` AS `kode_pemasok`, `pemasok`.`nama` AS `nama_pemasok` ";
+		$select 			= "SELECT SQL_CALC_FOUND_ROWS `produk`.*, `pemasok`.`kode` AS `kode_pemasok`, `pemasok`.`nama` AS `nama_pemasok` , SUM(`stok`.`qty`) as `stok` ";
 		$from 				= "
 		FROM `produk` 
 			LEFT JOIN `pemasok` ON `pemasok`.`id`=`produk`.`id_pemasok`
+			LEFT JOIN `stok` ON `stok`.`id_produk` = `produk`.`id`
 		";
 		$where 				= "WHERE `produk`.`id` IS NOT NULL 
 		 ";

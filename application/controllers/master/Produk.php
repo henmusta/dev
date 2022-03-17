@@ -37,7 +37,6 @@ class Produk extends GT_Controller {
 				$this->load->view($this->module['url'] . '/javascript/datatable', $data, TRUE)
 			)
 		);
-
 		$this->html_head($head);
 		$this->load->view($this->module['url'] . '/html/datatable',$data);
 		$this->html_foot($foot);

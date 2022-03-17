@@ -45,6 +45,7 @@
 								<th>Harga Jual</th>
 								<th>Status</th>
 								<th>Aksi</th>
+								<th>Stok</th>
 								<th>#</th>
 							</tr>
 						</thead>

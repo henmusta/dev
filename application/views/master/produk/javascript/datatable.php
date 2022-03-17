@@ -153,6 +153,7 @@ $(function(){
 						}
 					}
 				},
+				{ data : 'stok' },
 				{ 
 					data : 'id', 
 					className : 'text-center', 

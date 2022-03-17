@@ -1,6 +1,76 @@
 <?php 
 $penjualan = isset($data) ? $data : (object)[];
 ?>
+<style>
+.wrapper{
+  display: inline-flex;
+  background: #fff;
+  width: 400px;
+  align-items: center;
+  justify-content: space-evenly;
+  border-radius: 5px;
+  padding: 20px 15px;
+}
+.wrapper .option{
+  background: #fff;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  margin: 0 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 5px;
+  border: 2px solid lightgrey;
+  transition: all 0.3s ease;
+}
+.wrapper .option .dot{
+  height: 20px;
+  width: 20px;
+  background: #d9d9d9;
+  border-radius: 50%;
+  position: relative;
+}
+.wrapper .option .dot::before{
+  position: absolute;
+  content: "";
+  top: 4px;
+  left: 4px;
+  width: 12px;
+  height: 12px;
+  background: #0069d9;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(1.5);
+  transition: all 0.3s ease;
+}
+input[type="radio"]{
+  display: none;
+}
+#print:checked:checked ~ .print,
+#not_print:checked:checked ~ .not_print{
+  border-color: #0069d9;
+  background: #0069d9;
+}
+#print:checked:checked ~ .print .dot,
+#not_print:checked:checked ~ .not_print .dot{
+  background: #fff;
+}
+#print:checked:checked ~ .print .dot::before,
+#not_print:checked:checked ~ .not_print .dot::before{
+  opacity: 1;
+  transform: scale(1);
+}
+.wrapper .option span{
+  font-size: 20px;
+  color: #808080;
+}
+#print:checked:checked ~ .print span,
+#not_print:checked:checked ~ .not_print span{
+  color: #fff;
+}
+</style>
 <div class="content">
 	<form id="form" method="POST" action="<?= isset($module['action']) ? $module['action'] : NULL ;?>" autocomplete="off">
 		<input type="hidden" name="pk" value="<?= isset($data->id) ? $data->id : NULL ;?>">
@@ -9,12 +79,27 @@ $penjualan = isset($data) ? $data : (object)[];
 			
 			<div class="block-header">
 				<h3 class="block-title"><?= isset($module['name']) ? $module['name'] : NULL ;?></h3>
-				<div class="block-options">
 						<div class="form-group">
-							<label class="rdiobox"><input name="print" value="1" id="print" type="radio"> <span>Print Eceran</span></label>
-							<label class="rdiobox"><input name="print" value="0" id="not_print" type="radio"checked> <span>Disable</span></label>
+							<!-- <label class="rdiobox"><input name="print" value="1" id="print" type="radio"> <span>Print Eceran</span></label>
+							<label class="rdiobox"><input name="print" value="0" id="not_print" type="radio"checked> <span>Disable</span></label> -->
+						
 						</div>
-					<div class="btn-group btn-group-sm">
+				<div class="block-options">
+				    <div class="btn-group">
+						<div class="wrapper">
+							<input type="radio" name="print" value="1" id="print">
+							<input type="radio" name="print" id="not_print"  checked>
+							<label for="print" class="option print">
+								<div class="dot"></div>
+								<span>Print Eceran</span>
+								</label>
+							<label for="not_print" class="option not_print">
+								<div class="dot"></div>
+								<span>Disable Print</span>
+							</label>
+						</div>
+					</div>
+					<div class="btn-group">
 						<a href="javascript:history.back();" class="btn btn-outline-secondary"><i class="fa fa-reply"></i> Kembali</a>
 						<button type="submit" class="btn btn-outline-primary"><i class="fa fa-save"></i> Simpan</button>
 						<!-- <button id="btn-bill-print" class="btn btn-block btn-outline-primary" type="button"><i class="fas fa-print"></i> Print</button> -->
