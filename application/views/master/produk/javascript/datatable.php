@@ -122,6 +122,7 @@ $(function(){
 				{ data : 'nama' },
 				{ data : 'harga_beli', width: '140px', className:'text-right', render : $.fn.dataTable.render.number( ',', '.', 0, '' ) },
 				{ data : 'harga_jual', width: '140px', className:'text-right', render : $.fn.dataTable.render.number( ',', '.', 0, '' ) },
+				{ data : 'nama_satuan' },
 				{ 
 					data : 'status', 
 					className : 'text-center', 

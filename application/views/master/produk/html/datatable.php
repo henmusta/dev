@@ -43,6 +43,7 @@
 								<th>Nama</th>
 								<th>Harga Beli</th>
 								<th>Harga Jual</th>
+								<th>Kategori Harga</th>
 								<th>Status</th>
 								<th>Aksi</th>
 								<th>Stok</th>

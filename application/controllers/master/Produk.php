@@ -44,7 +44,8 @@ class Produk extends GT_Controller {
 	public function insert(){
 		$this->module['action'] = $this->module['url'] . '/crud/insert';
 		$data = array(
-			'module' => $this->module 
+			'module' => $this->module ,
+			'satuan' => $this->db->get('satuan')->result()
 		);
 		$head = array(
 			'stylesheets'		=> array(
@@ -98,7 +99,8 @@ class Produk extends GT_Controller {
 		$this->module['action'] = $this->module['url'] . '/crud/update';
 		$data = array(
 			'module' 	=> $this->module,
-			'data'		=> $this->Produk_model->single($pk)
+			'data'		=> $this->Produk_model->single($pk),
+			'satuan' => $this->db->get('satuan')->result()
 		);
 		$head = array(
 			'stylesheets'		=> array(

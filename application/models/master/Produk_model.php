@@ -19,9 +19,11 @@ class Produk_model extends CI_Model {
 	}
 	public function single($pk){
 		$row = $this->db
-			->select('produk.*, pemasok.telp, pemasok.kode as kode_p, cabang.kode as kode_cabang')
+			->select('produk.*, pemasok.telp, pemasok.kode as kode_p, cabang.kode as kode_cabang, satuan.amount as satuan')
 			->join('pemasok', 'pemasok.id = produk.id_pemasok', 'left')
 			->join('cabang', 'cabang.id = produk.id_cabang', 'left')
+
+			->join('satuan', 'satuan.id = produk.id_satuan', 'left')
 			->get_where('produk',array('produk.id'=>$pk))->row();
 		if(isset($row->id) && !empty($row->id) ){
 			$row->pemasok = $this->db->get_where('pemasok',array('id'=>$row->id_pemasok))->row();
@@ -34,10 +36,11 @@ class Produk_model extends CI_Model {
 		// print_r($kode);
 		$barcode = (object)[];
 		$barcode = $this->db
-			->select('produk.*, pemasok.telp, pemasok.kode as kode_p, cabang.kode as kode_cabang')
+			->select('produk.*, pemasok.telp, pemasok.kode as kode_p, cabang.kode as kode_cabang, satuan.amount as satuan')
 			->from('produk')
 			->join('pemasok', 'pemasok.id = produk.id_pemasok', 'left')
 			->join('cabang', 'cabang.id = produk.id_cabang', 'left')
+			->join('satuan', 'satuan.id = produk.id_satuan', 'left')
 			->where_in('produk.id', explode(',', $kode))->get()->result();
 		return $barcode; 
 	}
@@ -46,11 +49,12 @@ class Produk_model extends CI_Model {
 		$columns 			= array('produk.kode_produk','produk.id','`pemasok`.`kode`', '`produk`.`kode_produk`' ,'`produk`.`nama`', '`produk`.`harga_beli`', '`produk`.`harga_jual`', '`produk`.`status`', '`produk`.`id`');
 		$select_total 		= "SELECT COUNT(`produk`.`id`) AS `total` ";
 		$select_filtered	= "SELECT FOUND_ROWS() AS `total` ";
-		$select 			= "SELECT SQL_CALC_FOUND_ROWS `produk`.*, `pemasok`.`kode` AS `kode_pemasok`, `pemasok`.`nama` AS `nama_pemasok` , SUM(`stok`.`qty`) as `stok` ";
+		$select 			= "SELECT SQL_CALC_FOUND_ROWS `produk`.*, `pemasok`.`kode` AS `kode_pemasok`, `pemasok`.`nama` AS `nama_pemasok` , SUM(`stok`.`qty`) as `stok`, `satuan`.`name` AS `nama_satuan`, `satuan`.`amount` AS `angka_satuan` ";
 		$from 				= "
 		FROM `produk` 
 			LEFT JOIN `pemasok` ON `pemasok`.`id`=`produk`.`id_pemasok`
 			LEFT JOIN `stok` ON `stok`.`id_produk` = `produk`.`id`
+			LEFT JOIN `satuan` ON `satuan`.`id` = `produk`.`id_satuan`
 		";
 		$where 				= "WHERE `produk`.`id` IS NOT NULL 
 		 ";
