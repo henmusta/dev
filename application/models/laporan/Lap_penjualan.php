@@ -307,7 +307,11 @@ LEFT JOIN (SELECT SUM(produk.`laba` * rincian_retur_penjualan.qty) AS laba,
 				penjualan.`chek` AS chek, 
 				(penjualan.laba_akhir) AS laba, 
 				(penjualan.laba_akhir - penjualan.diskon) AS laba_akhir, 
-				penjualan.`total_tagihan` AS total 
+				penjualan.`total_tagihan` AS total ,
+				rincian_penjualan.`qty` AS qty ,
+				rincian_penjualan.`harga` AS harga ,
+				rincian_penjualan.`total` AS total,
+				produk.`nama` AS nama_produk
 		FROM rincian_penjualan 
 		LEFT JOIN penjualan ON penjualan.id = rincian_penjualan.id_penjualan 
 		LEFT JOIN pelanggan ON pelanggan.id = penjualan.id_pelanggan 
@@ -325,7 +329,6 @@ LEFT JOIN (SELECT SUM(produk.`laba` * rincian_retur_penjualan.qty) AS laba,
 		if ($customer_id != NULL) {
 			$query .= "AND penjualan.id_pelanggan = '".$customer_id."'";
 		}
-		$query .= "GROUP BY penjualan.id; ";
 		return $this->db->query($query)->result();
 	}
 	
