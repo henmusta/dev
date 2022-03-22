@@ -1,7 +1,7 @@
-<style>html { margin: 1px; font-size : 7px;}
+<style>html { margin: 1px; font-size : 8px;}
 .fix{
-  width:100px; 
-  height:40px;
+  width:95px; 
+  height:35px;
   margin-top:7px; 
   margin-bottom:31.5px; 
   margin-right:5px;
@@ -16,7 +16,7 @@
             <div class="fix">
                 <?php 
                 $generator = new Picqer\Barcode\BarcodeGeneratorDynamicHTML();
-                echo $barcode->telp . " / Rp. ".number_format($barcode->harga_jual * 12);
+                echo $barcode->telp . " / ".$barcode->harga_jual * $barcode->satuan / 1000;
                 echo $generator->getBarcode($barcode->kode_produk, $generator::TYPE_CODE_128, 1, 14);
                 echo $barcode->kode_cabang."  ".$barcode->nama."  ".$barcode->kode_p;
                 ?>

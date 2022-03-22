@@ -26,7 +26,8 @@ class Laporan_penjualan_pelanggan extends GT_Controller {
 				'assets/js/plugins/datatables/RowGroup-1.1.2/css/rowGroup.bootstrap4.min.css',
 				'assets/js/plugins/datatables/Select-1.3.1/css/select.bootstrap4.min.css',
 				'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css',
-				'assets/js/plugins/sweetalert2/sweetalert2.min.css'
+				'assets/js/plugins/sweetalert2/sweetalert2.min.css',
+				'https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css'
 			),
 			'heading' => array('title'=>$data['module']['name'])
 		);
@@ -75,6 +76,19 @@ class Laporan_penjualan_pelanggan extends GT_Controller {
 			->set_content_type('application/json')
 			->set_status_header(200)
 			->set_output(json_encode($customer));
+	}
+	public function getDetail($penjualan_id)
+	{
+		$data = $this->db
+			->select('rp.*, p.nama as nama_produk, pj.tgl_nota')
+			->join('penjualan as pj', 'pj.id = rp.id_penjualan', 'left')
+			->join('produk as p', 'p.id = rp.id_produk', 'left')
+			->where('rp.id_penjualan', $penjualan_id)
+			->get('rincian_penjualan as rp')->result();
+		$this->output
+			->set_content_type('application/json')
+			->set_status_header(200)
+			->set_output(json_encode($data));
 	}
 
 }

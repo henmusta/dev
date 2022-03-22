@@ -52,6 +52,17 @@
 								<input type="text" id="laba" class="form-control currencies text-right" name="produk[laba]" required="required" value="<?= isset($data->laba) ? $data->laba : NULL;?>">
 							</div>
 						</div>					
+						<div class="form-group form-row align-items-center">
+							<label class="col-md-2 text-right">Kategori Harga</label>
+							<div class="col-md-4">
+								<select name="produk[id_satuan]" class="form-control" id="">
+									<option selected disabled>Pilih Kategori</option>
+									<?php foreach ($satuan as $key => $value) { ?>
+										<option value="<?= $value->id?>" <?= isset($data->id_satuan) && $data->id_satuan == $value->id ? 'selected' : '';?>><?= $value->name?></option>
+									<?php } ?>
+								</select>
+							</div>
+						</div>					
 					</div>
 				</div>
 			</form>
