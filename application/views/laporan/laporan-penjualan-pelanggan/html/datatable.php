@@ -26,14 +26,10 @@
 						<th>Nama</th>
 						<th>Tgl Nota</th>
 						<th>No Nota</th>
-						<th>Jumlah Pembelian</th>
-						<th>Diskon</th>
-						<th>Cek Nota</th>
-						<th>Retur</th>
-						<th>Laba Jual</th>
-						<th>Laba Retur</th>
-						<th>Pembelian Bersih</th>
-						<th>Laba Akhir</th>
+						<th>Nama Produk</th>
+						<th>Qty</th>
+						<th>Harga</th>
+						<th>Jumlah</th>
 					</tr>
 				</thead> 
 				<tbody></tbody>

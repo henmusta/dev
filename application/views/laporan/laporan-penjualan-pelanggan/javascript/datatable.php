@@ -1,12 +1,57 @@
 <script type="text/javascript">
 $(function(){
 	'use strict'
+	function format ( res ) {
+		var html =  `<table>
+			<thead>
+				<tr>
+					<th>Nama Produk</th>
+					<th>Qty</th>
+					<th>Harga</th>
+					<th>Total</th>
+				</tr>
+			</thead>
+			<tbody>`;
+			$.each(res, function (x, data){
+				html +=`
+				<tr>
+					<td>${data.nama_produk}</td>
+					<td>${data.qty}</td>
+					<td>${data.harga}</td>
+					<td>${data.total}</td>
+				</tr>`;
+			})
+			html += `
+			</tbody>
+		</table>`;
+		return html;
+	}
 	$(document).ready(function(){
 		var buttonOptions = {
 			title 		: '<h1 class="text-center">Laporan Stok Barang Material<h1>',
 			filename 	: 'Laporan Stok ' + '<?= date('l, d F Y')?>'
 		};
+		$('#dt tbody').on('click', 'td.dt-control', function () {
+			var tr = $(this).closest('tr');
+			var row = dt.row( tr );
+			if ( row.child.isShown() ) {
+				// This row is already open - close it
+				row.child.hide();
+				tr.removeClass('dt-hasChild shown');
+			}
+			else {
+				var id_penjualan = row.data();
+				$.ajax({
+					url : "<?= $module['url'];?>/getdetail/" + id_penjualan[1],
+					type : 'GET',
+				}).done(function(res){
+					tr.addClass('dt-hasChild shown');
+					row.child( format(res)).show();
+				});
+			}
+		} );
 		var dt = $('#dt').DataTable({
+			
 			dom: 'Bfrtip',
 			buttons: [
 				'copy', 'csv', 'excel', 'pdf', 'print'
@@ -18,40 +63,20 @@ $(function(){
                 endRender: function(rows, group) {
                     var a = 0,
 						b = 0,
-						c = 0,
-						e = 0,
-						f = 0,
-						g = 0,
-						h = 0,
-						j = 0;
+						c = 0;
                     rows.data().each(function(i, d) {
-                        a += parseInt(i[3]);
-                        b += parseInt(i[4]);
-                        c += parseInt(i[5]);
-                        e += parseInt(i[6]);
-                        f += parseInt(i[7]);
-                        g += parseInt(i[8]);
-                        h += parseInt(i[9]);
-                        j += parseInt(i[10]);
+                        a += parseInt(i[4]);
+                        b += parseInt(i[5]);
+                        c += parseInt(i[6]);
                     });
                     var ra = $.fn.dataTable.render.number('.', ',', 2, 'Rp. ').display(a);
                     var rb = $.fn.dataTable.render.number('.', ',', 2, 'Rp. ').display(b);
                     var rc = $.fn.dataTable.render.number('.', ',', 2, 'Rp. ').display(c);
-                    var re = $.fn.dataTable.render.number('.', ',', 2, 'Rp. ').display(e);
-                    var rf = $.fn.dataTable.render.number('.', ',', 2, 'Rp. ').display(f);
-                    var rg = $.fn.dataTable.render.number('.', ',', 2, 'Rp. ').display(g);
-                    var rh = $.fn.dataTable.render.number('.', ',', 2, 'Rp. ').display(h);
-                    var rj = $.fn.dataTable.render.number('.', ',', 2, 'Rp. ').display(j);
                     return $('<tr class="font-w600 fw-bold">')
-                        .append('<td colspan="3">Total</td>')
+                        .append('<td colspan="4">Total</td>')
                         .append('<td class="text-end">' + ra + '</td>')
                         .append('<td class="text-end">' + rb + '</td>')
-                        .append('<td class="text-end">' + rc + '</td>')
-                        .append('<td class="text-end">' + re + '</td>')
-                        .append('<td class="text-end">' + rf + '</td>')
-                        .append('<td class="text-end">' + rg + '</td>')
-                        .append('<td class="text-end">' + rh + '</td>')
-                        .append('<td class="text-end">' + rj + '</td>');
+                        .append('<td class="text-end">' + rc + '</td>');
                 },
                 dataSrc: [0]
             },
@@ -98,24 +123,20 @@ $(function(){
 							data.nama_p,
 							data.tgl_nota,
 							data.nomor,
-							data.jumlah,
-							data.diskon,
-							data.chek,
-							data.notaretur,
-							data.laba,
-							data.laba_retur,
+							data.nama_produk,
+							data.qty,
+							data.harga,
 							data.total,
-							data.laba_akhir,
 						]);
 					});
 					dt.draw();
-					
                 },
                 error: function(res) {
 					console.log(res)
                 }
             })
 		});
+
 	});
 });
 </script>

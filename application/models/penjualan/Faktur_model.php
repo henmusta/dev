@@ -517,10 +517,10 @@ class Faktur_model extends CI_Model {
 		$text .= text_align($penjualan['nomor'], 2, 'right');
 		array_push($lines,$text);
 
-		$text = text_align('Kasir', 5, 'left');
-		$text .= text_align(':', 2, $align = 'left');
-		$text .= text_align($this->session->user->nama, 2, 'right');
-		array_push($lines,$text);
+		// $text = text_align('Kasir', 5, 'left');
+		// $text .= text_align(':', 2, $align = 'left');
+		// $text .= text_align($this->session->user->nama, 2, 'right');
+		// array_push($lines,$text);
 
 		$text = text_align('Pelanggan', 5, 'left');
 		$text .= text_align(':', 2, $align = 'left');
@@ -580,7 +580,7 @@ class Faktur_model extends CI_Model {
 		$total_tagihan = $total_items - $penjualan['diskon'];
 
 		array_push($lines,str_pad('-', 48, '-'));
-		$text = text_align('Item',(15 - 1), 'left') . ' ';
+		$text = text_align('Total',(15 - 1), 'left') . ' ';
 		$text .= text_align(number_format($total_items), 33, 'right');
 		array_push($lines,$text);
 		$text = text_align('Diskon',(15 - 1), 'left') . ' ';
