@@ -28,8 +28,10 @@ if ($cabang->id_cabang == 6) {
             <div class="fix">
                 <?php
         $generator = new Picqer\Barcode\BarcodeGeneratorDynamicHTML();
+        // $generator = new Picqer\Barcode\BarcodeGeneratorHTML();
         echo $barcode->telp . " / " . $barcode->harga_jual * $kali / 1000;
-        echo $generator->getBarcode($barcode->kode_produk, $generator::TYPE_CODE_128, 1, 14);
+        // echo $generator->getBarcode($barcode->kode_produk, $generator::TYPE_CODE_128, 1, 14);
+        echo $generator->getBarcode($barcode->kode_produk, $generator::TYPE_CODE_128);
         echo $barcode->kode_cabang . "  " . $barcode->nama . "  " . $barcode->kode_p;
         ?>
             </div>

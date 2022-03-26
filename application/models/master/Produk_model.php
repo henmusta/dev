@@ -59,7 +59,7 @@ class Produk_model extends CI_Model
 			LEFT JOIN `pemasok` ON `pemasok`.`id`=`produk`.`id_pemasok`
 			LEFT JOIN `stok` ON `stok`.`id_produk` = `produk`.`id`
 		";
-		$where 				= "WHERE `produk`.`id` IS NOT NULL 
+		$where 				= "WHERE `produk`.`id` IS NOT NULL AND produk.id_cabang = ".$this->user->id_cabang."
 		 ";
 		$group_by 			= "group by produk.id";
 		$having 			= "";

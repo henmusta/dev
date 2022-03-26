@@ -25,7 +25,7 @@ if ($cabang->id_cabang == 6) {
 }
 foreach ($barcode as $value) {
   $generator = new Picqer\Barcode\BarcodeGeneratorDynamicHTML();
-  $array['generator' . $i] = $generator->getBarcode($value->kode_produk, $generator::TYPE_CODE_128, 1, 14);
+  $array['generator' . $i] = $generator->getBarcode($value->kode_produk, $generator::TYPE_CODE_128);
   $array['name' . $i] = $value->nama;
   $array['kode' . $i] = $value->kode_produk;
   $array['harga' . $i] = ($value->harga_jual * $kali) / 1000;
