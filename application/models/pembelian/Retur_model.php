@@ -222,8 +222,8 @@ class Retur_model extends CI_Model {
 
 				/* Record Data Stok Barang */
 				$this->db->query("
-					INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`)
-					VALUES ('".$item['id_produk']."','".$tgl_nota."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','".$ref['table']."','pembelian','".$item['harga']."',".($item['qty'] * -1).");
+					INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`, status_ro, id_cabang)
+					VALUES ('".$item['id_produk']."','".$tgl_nota."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','".$ref['table']."','pembelian','".$item['harga']."',".($item['qty'] * -1)." , 1,  '".$id_cabang."');
 				");
 
 				$nominal += $item['total'];

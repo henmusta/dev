@@ -23,7 +23,7 @@ class Saldo_stok_model extends CI_Model {
 			 produk.harga_jual as harga_jual,
 			`pemasok`.`kode` AS `kode_pemasok`, 
 			`pemasok`.`nama` AS `nama_pemasok`,
-			SUM(IFNULL(`stok`.`qty`,0)) AS `saldo`
+			 SUM(IFNULL(`stok`.`qty`,0)) AS `saldo`
 		";
 
 		$from 				= "

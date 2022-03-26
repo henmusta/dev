@@ -17,6 +17,15 @@ class Faktur_model extends CI_Model {
 		$result = $this->db->query($query)->row();
 		return isset($result->total) && $result->total > 0 ? FALSE : TRUE;
 	}
+
+	private function is_unique_field_pemasok($column_name, $value, $pk=NULL){
+		$query = "SELECT COUNT(`id`) AS `total` FROM `pemasok` WHERE `". $column_name ."`='". $this->db->escape_str($value) ."' ";
+		if(!empty($pk)){
+			$query .= " AND `id`!='" . $pk ."'";
+		}
+		$result = $this->db->query($query)->row();
+		return isset($result->total) && $result->total > 0 ? FALSE : TRUE;
+	}
 	public function single($pk, $satuan){
 		echo $satuan;
 		$pembelian = (object)[];
@@ -321,31 +330,35 @@ class Faktur_model extends CI_Model {
 		$pembelian['id_pemasok'] 	= null;
 
 		if( isset($pemasok['kode']) && !empty($pemasok['kode']) && isset($pemasok['nama']) && !empty($pemasok['nama']) ){
-			$pembelian['id_pemasok'] = $this->insert_pemasok($pemasok);
-			if( isset($rincian) && is_array($rincian) && count($rincian) > 0 ){
-				foreach( $rincian AS $index => $item ){
-					$produk[$index]['id_pemasok'] = $pembelian['id_pemasok'];
-					$produk[$index]['harga_beli'] = $item['harga'];
-					$produk[$index]['id_cabang'] = $item['id_cabang'];
-					if(isset($pk) && !empty($pk)){
-						foreach($asu as $item => $val){
-							$this->db->query("
-							UPDATE `produk` SET 
-								`id_pemasok`='".$produk[$index]['id_pemasok']."'
-							WHERE `id`=".$val['pd_id'].";");
+			$data_is_valid_pemasok 	= $this->is_unique_field_pemasok('kode', $pemasok['kode']);
+			if( $data_is_valid_pemasok == FALSE  && $cek['new'] == "new"){
+				$result['message'] 	= "Kode Pemasok Sudah Digunakan.";
+			}else{
+				$pembelian['id_pemasok'] = $this->insert_pemasok($pemasok);
+				if( isset($rincian) && is_array($rincian) && count($rincian) > 0 ){
+					foreach( $rincian AS $index => $item ){
+						$produk[$index]['id_pemasok'] = $pembelian['id_pemasok'];
+						$produk[$index]['harga_beli'] = $item['harga'];
+						$produk[$index]['id_cabang'] = $item['id_cabang'];
+						if(isset($pk) && !empty($pk)){
+							foreach($asu as $item => $val){
+								$this->db->query("
+								UPDATE `produk` SET 
+									`id_pemasok`='".$produk[$index]['id_pemasok']."'
+								WHERE `id`=".$val['pd_id'].";");
+							}
+							$rincian[$index]['id_produk'] = $val['pd_id'];
+						}else{
+							if( isset($produk[$index]['nama']) && !empty($produk[$index]['nama']) ){
+								$rincian[$index]['id_produk'] = $this->insert_produk($produk[$index]);
+							}
 						}
-						$rincian[$index]['id_produk'] = $val['pd_id'];
-					}else{
-						if( isset($produk[$index]['nama']) && !empty($produk[$index]['nama']) ){
-							$rincian[$index]['id_produk'] = $this->insert_produk($produk[$index]);
-						}
+						$data_is_valid_pemasok = TRUE;
+						
 					}
-					// if( isset($produk[$index]['nama']) && !empty($produk[$index]['nama']) ){
-					// 	$rincian[$index]['id_produk'] = $this->insert_produk($produk[$index]);
-					// }
-					
 				}
 			}
+		
 		}
 
 		if( isset($pembelian['tgl_nota']) && !empty($pembelian['tgl_nota']) && isset($pembelian['nomor']) && !empty($pembelian['nomor']) ){
@@ -358,7 +371,7 @@ class Faktur_model extends CI_Model {
 			}
 		}
 
-		if($data_is_valid === TRUE){
+		if($data_is_valid === TRUE && $data_is_valid_pemasok === TRUE){
 			$this->db->trans_begin();
 			extract($pembelian);
 
@@ -393,8 +406,8 @@ class Faktur_model extends CI_Model {
 
 				$sisa_qty = $item['qty'] - $item['qty'];
 				   $this->db->query("
-					INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`, status_ro)
-					VALUES ('".$item['id_produk']."','".$tgl_buat."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','pembelian','pembelian','".$item['harga']."',".$item['qty'].", '".$pembelian['status_ro']."');
+					INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`, status_ro, id_cabang)
+					VALUES ('".$item['id_produk']."','".$tgl_buat."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','pembelian','pembelian','".$item['harga']."',".$item['qty'].", '".$pembelian['status_ro']."', '".$id_cabang."');
 				  ");
 				  $this->db->query("
 					INSERT `receive_order` (`pembelian_id`, `id_produk`, `tgl`, `qty`, qty_diterima, sisa_qty, status_ro)

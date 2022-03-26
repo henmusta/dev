@@ -32,11 +32,12 @@ $(function(){
 						return meta.row + meta.settings._iDisplayStart + 1;
 					}
 				},
-				{ data : 'tgl_buat', className:'text-right', width: '120px' },
-				{ data : 'tgl_nota', className:'text-right', width: '120px' },
-				{ data : 'nama_pemasok' },
+				{ data : 'tgl_buat', className:'text-right', width: '180px' },
+				{ data : 'tgl_nota', className:'text-right', width: '180px' },
+				{ data : 'nama_pemasok', width: '180px' },
 				{ 
 					data : 'nomor',
+					width: '180px',
 					render : function ( columnData, type, rowData, meta ) {
 						return `<a href="<?= $module['url'];?>/single/`+ rowData.id +`">`+ columnData +`</a>`;
 					}

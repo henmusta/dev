@@ -50,6 +50,7 @@
 					<div class="col-md-6">
 						<div id="form-old">
 							<div class="form-group form-row">
+							<input id="pemasok_new" type="text" hidden="true" name="cek[new]" value="old" >
 							<label class="col-md-3">Pemasok</label>
 								<div class="col-md-9">
 									<select id="nama-pemasok" class="form-control" name="pemasok[nama]">
@@ -70,6 +71,7 @@
 						</div><br>
 					<div class="form-new" id="form-new" name="form-new" hidden="true">
 						<div class="form-group form-row">
+						<input id="pemasok_new1" type="text" name="cek[new]" value="new" hidden="true" disabled="disabled">
 							<label class="col-md-3">Nama Supplier</label>
 							<div class="col-md-9">
 								<input id="nama-pemasok1" type="text" class="form-control" name="pemasok[nama]" required="required" value="<?= isset($pembelian->pemasok->nama) ? $pembelian->pemasok->nama : NULL;?>" disabled="disabled">

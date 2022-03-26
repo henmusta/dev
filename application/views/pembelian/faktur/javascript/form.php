@@ -21,6 +21,7 @@ $(function(){
 			$("#kode-pemasok").attr("disabled",true);
 			$("#nama-pemasok1").attr("disabled",false);
 			$("#kode-pemasok1").attr("disabled",false);
+			$("#pemasok_new1").attr("disabled",false);
         });
 		$("#clspemasok").on('click', function(){
 			$("#form-new").attr("hidden",true);
@@ -31,6 +32,7 @@ $(function(){
 			$("#kode-pemasok").attr("disabled",false);
 			$("#nama-pemasok1").attr("disabled",true);
 			$("#kode-pemasok1").attr("disabled",true);
+			$("#pemasok_new1").attr("disabled",true);
         });
 		$('#nama-pemasok').select2({
 			ajax : {

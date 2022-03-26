@@ -139,8 +139,8 @@ class Ro_model extends CI_Model {
 					  );
 					if($pembelian['status_ro'] == '1'){
 						$this->db->query("
-							INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`, status_ro)
-							VALUES ('".$item['pd_id']."','".$pembelian['tgl_buat']."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','pembelian','pembelian','".$item['harga']."',".$item['qty_diterima'].", '".$pembelian['status_ro']."');
+							INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`, status_ro, id_cabang)
+							VALUES ('".$item['pd_id']."','".$pembelian['tgl_buat']."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','pembelian','pembelian','".$item['harga']."',".$item['qty_diterima'].", '".$pembelian['status_ro']."', '".$this->user->id_cabang."');
 						");	
 					}
 				

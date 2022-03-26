@@ -28,7 +28,6 @@
                                 <th style="width: 10%;">No</th>
                                 <th style="width: 20%;">Tanggal</th>
                                 <th style="width: 20%;">Nomor Nota</th>
-                                <th style="width: 30%;">Pemasok</th>
                                 <th style="width: 20%;">QTY</th>   
                             </tr>
                         </thead>
@@ -36,7 +35,7 @@
                         </tbody>
                         <tfoot>
                     <tr>
-                        <th colspan="4" style="text-align:right">Total :</th>
+                        <th colspan="3" style="text-align:right">Total :</th>
                         <th></th>
                     </tr>
                         </tfoot>
@@ -51,7 +50,6 @@
                                 <th style="width: 10%;">No</th>
                                 <th style="width: 20%;">Tanggal</th>
                                 <th style="width: 20%;">Nomor Nota</th>
-                                <th style="width: 30%;">Pelanggan</th>
                                 <th style="width: 20%;">QTY</th>   
                             </tr>
                         </thead>
@@ -59,34 +57,12 @@
                         </tbody>
                         <tfoot>
                <tr>
-                <th colspan="4" style="text-align:right">Total  :</th>
+                <th colspan="3" style="text-align:right">Total  :</th>
                 <th></th>
             </tr>
         </tfoot>
                 </table>
-                <table id="retur" class="table table-sm" width="100%">
-                      <thead>
-                            <tr>
-                                <th colspan="7">Retur</th>
-                            </tr>
-                            <tr>
-                            <th style="width: 10%;">No</th>
-                                <th style="width: 20%;">Tanggal</th>
-                                <th style="width: 10%;">Nomor Nota</th>
-                                <th style="width: 20%;">Pemasok</th>
-                                <th style="width: 10%;">jenis</th>
-                                <th style="width: 10%;">QTY</th>   
-                            </tr>
-                        </thead>
-                        <tbody> 
-                        </tbody>
-                        <tfoot>
-               <tr>
-                <th colspan="5" style="text-align:right">Total  :</th>
-                <th></th>
-            </tr>
-        </tfoot>
-                </table>
+               
 
                 <table id="opname" name="opname" class="table table-sm" width="100%">
                         <thead>
@@ -97,24 +73,45 @@
                                 <th style="width: 10%;">No</th>
                                 <th style="width: 20%;">Tanggal</th>
                                 <th style="width: 20%;">Nomor Nota</th>
-                                <th style="width: 30%;">Pemasok</th>
                                 <th style="width: 20%;">QTY</th>   
                             </tr>
                         </thead>
                         <tbody>  
                         </tbody>
                         <tfoot>
-                    <tr>
-                        <th colspan="4" style="text-align:right">Total :</th>
-                        <th></th>
-                    </tr>
+                            <tr>
+                                <th colspan="3" style="text-align:right">Total :</th>
+                                <th></th>
+                            </tr>
                         </tfoot>
+                 </table>
+             <table id="retur" class="table table-sm" width="100%">
+                      <thead>
+                            <tr>
+                                <th colspan="7">Retur</th>
+                            </tr>
+                            <tr>
+                                <th style="width: 10%;">No</th>
+                                <th style="width: 20%;">Tanggal</th>
+                                <th style="width: 10%;">Nomor Nota</th>
+                                <th style="width: 10%;">jenis</th>
+                                <th style="width: 10%;">QTY</th>   
+                            </tr>
+                        </thead>
+                        <tbody> 
+                        </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" style="text-align:right">Total  :</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
             </table>
 
 <div class="row justify-content-end">
     <div class="col-3">
     <label class="col-md-3">Pembelian</label>
-            <input id="qtypembelian" name="qtypembelian" class="form-control form-control-sm text-right">
+            <input id="qtypembelian" name="qtypembelian" class="form-control form-control-sm text-right" readonly>
             <label class="col-md-3">Penjualan</label>
             <input id="qtypenjualan" name="qtypenjualan" class="form-control form-control-sm text-right" type="text" readonly>
             <label class="col-md-3">retur</label>

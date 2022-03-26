@@ -80,7 +80,7 @@ $(function(){
 					}
 				},
 				{ 
-					data 		: 'harga',
+					data 		: 'harga_beli',
 					className 	: 'text-right',
 					width 		: '150px',
 					render 		: function ( columnData, type, rowData, meta ) {

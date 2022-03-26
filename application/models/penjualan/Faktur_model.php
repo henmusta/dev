@@ -744,8 +744,8 @@ class Faktur_model extends CI_Model {
 						");
 						/* Record Data Stok Barang */
 						$this->db->query("
-							INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`)
-							VALUES ('".$item['id_produk']."','".$tgl_nota."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','penjualan','penjualan','".$item['harga']."',".($item['qty'] * -1).");
+							INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`, status_ro, id_cabang)
+							VALUES ('".$item['id_produk']."','".$tgl_nota."','". $ref['text'] ."','". $ref['link'] ."','". $ref['pk'] ."','penjualan','penjualan','".$item['harga']."',".($item['qty'] * -1).",  1, ".$id_cabang.");
 						");
 						$total_rincian += $item['total'];
 					}
@@ -758,10 +758,6 @@ class Faktur_model extends CI_Model {
 					LEFT JOIN produk
 					ON rincian_penjualan.`id_produk` = produk.`id` GROUP BY rincian_penjualan.`id` ) AS t2 ON t2.id_jual = rincian_penjualan.`id`
 					SET rincian_penjualan.`laba_akhir` = t2.laba_akhir;");
-		// if(isset($retur)){
-
-			
-		// }
 			$nominal = 0;
 			if(isset($retur)){
 
@@ -790,8 +786,8 @@ class Faktur_model extends CI_Model {
 
 				/* Record Data Stok Barang */
 				$this->db->query("
-					INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`)
-					VALUES ('".$item['id_produk']."','".$tgl_nota."','". $ref1['text'] ."','". $ref1['link'] ."','". $ref1['pk'] ."','".$ref1['table']."','penjualan','".$item['harga']."',".$item['qty'].");
+					INSERT `stok` (`id_produk`, `tgl`, `ref_text`, `ref_link`, `ref_pk`, `ref_table`, `transaksi`, `harga`, `qty`, status_ro, id_cabang)
+					VALUES ('".$item['id_produk']."','".$tgl_nota."','". $ref1['text'] ."','". $ref1['link'] ."','". $ref1['pk'] ."','".$ref1['table']."','penjualan','".$item['harga']."',".$item['qty'].", 1, ".$id_cabang.");
 				");
 				$nominal += $item['total'];
 				}

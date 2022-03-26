@@ -25,20 +25,20 @@ $(function(){
             };
 
 				tot = api
-						.column( 4 )
+						.column( 3 )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0 );
 		
 				var pageTotal = api
-						.column( 4, { page: 'current'} )
+						.column( 3, { page: 'current'} )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0 );
 
-					$( api.column( 4 ).footer() ).html(
+					$( api.column( 3 ).footer() ).html(
 					' '+ tot
 					);
 					$('#qtypembelian').val(tot);
@@ -73,7 +73,6 @@ $(function(){
 				},
                 { data : 'tgl', className : 'text-center' },
                 { data : 'nomor', className : 'text-center' },
-                { data : 'pemasok', className : 'text-center' },
                 { data : 'qty', className : 'text-center' }
 	
 			]
@@ -92,20 +91,20 @@ $(function(){
 					};
 
 				tot1 = api
-						.column( 4 )
+						.column( 3 )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0 );
 		
 				var pageTotal = api
-						.column( 4, { page: 'current'} )
+						.column( 3, { page: 'current'} )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0 );
 
-					$( api.column( 4 ).footer() ).html(
+					$( api.column( 3 ).footer() ).html(
 					' '+ tot1
 					);
 					$('#qtypenjualan').val(tot1);
@@ -140,7 +139,6 @@ $(function(){
 				},
                 { data : 'tgl', className : 'text-center' },
                 { data : 'nomor', className : 'text-center' },
-                { data : 'nama_pelanggan', className : 'text-center' },
                 { data : 'qty', className : 'text-center' }
 			]
 		});
@@ -158,58 +156,57 @@ $(function(){
 					};
 
 				tot2 = api
-						.column( 5 )
+						.column( 4 )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0 );
 		
 				var pageTotal = api
-						.column( 5, { page: 'current'} )
+						.column( 4, { page: 'current'} )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0 );
 
-					$( api.column( 5 ).footer() ).html(
+					$( api.column( 4 ).footer() ).html(
 					' '+ tot2
 					);
 					$('#qtyretur').val(tot2);
 					$("#qtyretur").trigger("change");		
 				},
-			lengthMenu		: [[5, 10, 25, 50, 100, -1], ["5", "10", "25", "50", "100", "All"]],
-			displayLength 	: 10,
-            ordering        : false,
-            info            : false,
-            paging          : false,
-			processing 		: true,
-			serverSide 		: true,
-            searching       : false,
-			ajax:{
-				url 		: "<?= $module['url'];?>/api-data/retur", 
-				type 		: "POST",
-				data 		: function(d){
-					return $.extend({},d,{
-						filter : {
-							id_produk 	: $('[name="filter[id_produk]"]').val()
+					lengthMenu		: [[5, 10, 25, 50, 100, -1], ["5", "10", "25", "50", "100", "All"]],
+					displayLength 	: 10,
+					ordering        : false,
+					info            : false,
+					paging          : false,
+					processing 		: true,
+					serverSide 		: true,
+					searching       : false,
+					ajax:{
+						url 		: "<?= $module['url'];?>/api-data/retur", 
+						type 		: "POST",
+						data 		: function(d){
+							return $.extend({},d,{
+								filter : {
+									id_produk 	: $('[name="filter[id_produk]"]').val()
+								}
+							});
 						}
-					});
-				}
-			},
-			columns 		: [
-				{
-					data: 'id',
-                    className : 'text-center',
-					render: function (data, type, row, meta) {
-						return meta.row + meta.settings._iDisplayStart + 1;
-					}
-				},
-                { data : 'tgl', className : 'text-center' },
-                { data : 'nomor', className : 'text-center' },
-                { data : 'pemasok', className : 'text-center' },
-                { data : 'jenis', className : 'text-center' },
-                { data : 'qty', className : 'text-center' }
-			]
+					},
+					columns 		: [
+						{
+							data: 'id',
+							className : 'text-center',
+							render: function (data, type, row, meta) {
+								return meta.row + meta.settings._iDisplayStart + 1;
+							}
+						},
+						{ data : 'tgl', className : 'text-center' },
+						{ data : 'nomor', className : 'text-center' },
+						{ data : 'jenis', className : 'text-center' },
+						{ data : 'qty', className : 'text-center' }
+					]
 			
 		});
 
@@ -226,20 +223,20 @@ $(function(){
 					};
 
 				tot3 = api
-						.column( 4 )
+						.column( 3 )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0 );
 		
 				var pageTotal = api
-						.column( 4, { page: 'current'} )
+						.column( 3, { page: 'current'} )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0 );
 
-					$( api.column( 4 ).footer() ).html(
+					$( api.column( 3 ).footer() ).html(
 					' '+ tot3
 					);
 					$('#qtyopname').val(tot3);
@@ -274,7 +271,6 @@ $(function(){
 				},
                 { data : 'tgl', className : 'text-center' },
                 { data : 'nomor', className : 'text-center' },
-                { data : 'pemasok', className : 'text-center' },
                 { data : 'qty', className : 'text-center' }
 			]
 		});
@@ -301,23 +297,17 @@ $(function(){
 		});
 
 
-	
-	
-	$( "#qtypembelian" ).change(function() {
-		$( "#qtypenjualan" ).change(function() {
-			$( "#qtyretur" ).change(function() {
-				$( "#qtyopname" ).change(function() {
+		$("#qtypembelian, #qtypenjualan, #qtyretur, #qtyopname" ).change(function() {
 				var pembelian =	$('#qtypembelian').val();
 				var retur =	$('#qtyretur').val();
 				var penjualan =	$('#qtypenjualan').val();
 				var opname =	$('#qtyopname').val();
-				var totall = parseInt(pembelian) - parseInt(penjualan) + parseInt(retur) + parseInt(opname);
-				$('#qtytotal').val(totall);
-				console.log($('#qtyopname').val())
-			});
+				if(pembelian &&  retur && penjualan && opname){
+					var total = parseInt(pembelian) - parseInt(penjualan) + parseInt(retur) + parseInt(opname);
+					$('#qtytotal').val(total);
+				}
+			
 		});
-	});
-});
 
 
 
