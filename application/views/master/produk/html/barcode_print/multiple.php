@@ -1,11 +1,11 @@
-<style>html { margin: 1px; font-size : 8px;}
+<style>html { margin: 1px; font-size : 9px; font-weight: bold;}
 .fix{
   width:95px; 
-  height:35px;
-  margin-top:7px; 
-  margin-bottom:31.5px; 
-  margin-right:5px;
-  margin-left:5px;
+  height:30px;
+  margin-top:3.5px; 
+  margin-bottom:36.5px; 
+  margin-right:6px;
+  margin-left:7px;
   text-align: center;
 }
 </style>
