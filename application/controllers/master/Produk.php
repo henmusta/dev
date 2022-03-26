@@ -1,17 +1,21 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Produk extends GT_Controller {
-	
+
+class Produk extends GT_Controller
+{
+
 	private $module = [
 		'name' 	=> 'Produk',
 		'url'	=> 'master/produk',
 	];
-	public function __construct(){
+	public function __construct()
+	{
 		parent::__construct();
-		$this->load->model( 'master/Produk_model' );
+		$this->load->model('master/Produk_model');
 	}
-	public function index(){
+	public function index()
+	{
 		$this->module['action'] = $this->module['url'] . '/barcode_multiple';
 		$data = array(
 			'module' => $this->module
@@ -22,7 +26,7 @@ class Produk extends GT_Controller {
 				'assets/js/plugins/datatables/Select-1.3.1/css/select.bootstrap4.min.css',
 				'assets/js/plugins/sweetalert2/sweetalert2.min.css'
 			),
-			'heading' => array('title'=>$data['module']['name'])
+			'heading' => array('title' => $data['module']['name'])
 		);
 		$foot = array(
 			'javascripts'	=> array(
@@ -38,14 +42,14 @@ class Produk extends GT_Controller {
 			)
 		);
 		$this->html_head($head);
-		$this->load->view($this->module['url'] . '/html/datatable',$data);
+		$this->load->view($this->module['url'] . '/html/datatable', $data);
 		$this->html_foot($foot);
 	}
-	public function insert(){
+	public function insert()
+	{
 		$this->module['action'] = $this->module['url'] . '/crud/insert';
 		$data = array(
-			'module' => $this->module ,
-			'satuan' => $this->db->get('satuan')->result()
+			'module' => $this->module,
 		);
 		$head = array(
 			'stylesheets'		=> array(
@@ -53,7 +57,7 @@ class Produk extends GT_Controller {
 				'assets/js/plugins/select2/css/select2.min.css',
 				'assets/js/plugins/select2/css/select2-bootstrap4.min.css'
 			),
-			'heading' => array('title'=>$data['module']['name'])
+			'heading' => array('title' => $data['module']['name'])
 		);
 
 		$foot = array(
@@ -74,33 +78,33 @@ class Produk extends GT_Controller {
 	}
 
 
-    public function cek_status($id)
+	public function cek_status($id)
 	{
 		$data = $this->Produk_model->cek_status($id);
 		echo json_encode($data);
 	}
 
 	public function update_active($id)
-	{	
-		$this->db->set('status','1');
-		$this->db->where('id',$id);
+	{
+		$this->db->set('status', '1');
+		$this->db->where('id', $id);
 		$this->db->update('produk');
 	}
 
 	public function update_non_active($id)
-	{	
-		$this->db->set('status','0');
-		$this->db->where('id',$id);
+	{
+		$this->db->set('status', '0');
+		$this->db->where('id', $id);
 		$this->db->update('produk');
 	}
 
-	public function update($pk = 0){
+	public function update($pk = 0)
+	{
 
 		$this->module['action'] = $this->module['url'] . '/crud/update';
 		$data = array(
 			'module' 	=> $this->module,
-			'data'		=> $this->Produk_model->single($pk),
-			'satuan' => $this->db->get('satuan')->result()
+			'data'		=> $this->Produk_model->single($pk)
 		);
 		$head = array(
 			'stylesheets'		=> array(
@@ -110,7 +114,7 @@ class Produk extends GT_Controller {
 				'assets/js/plugins/select2/css/select2-bootstrap4.min.css',
 				'assets/js/plugins/flatpickr/flatpickr.min.css'
 			),
-			'heading' => array('title'=>$data['module']['name'])
+			'heading' => array('title' => $data['module']['name'])
 		);
 
 		$foot = array(
@@ -133,18 +137,19 @@ class Produk extends GT_Controller {
 		$this->html_foot($foot);
 	}
 	/* CRUD */
-	public function crud($action = null){
+	public function crud($action = null)
+	{
 
 		$action = strtolower($action);
 
 		$response = array(
-			'status' 	=> 'error', 
+			'status' 	=> 'error',
 			'message'	=> 'No Action Parameter'
 		);
 
-		if( !empty($action) && in_array($action, array('insert', 'update', 'update-status', 'delete') ) ){
+		if (!empty($action) && in_array($action, array('insert', 'update', 'update-status', 'delete'))) {
 			$params 	= $this->input->post(NULL, TRUE);
-			$response 	= $this->Produk_model->{str_replace('-','_',$action)}($params);
+			$response 	= $this->Produk_model->{str_replace('-', '_', $action)}($params);
 			$response['status'] = isset($response['status']) && is_bool($response['status']) && $response['status'] === TRUE ? 'success' : 'error';
 		}
 
@@ -154,35 +159,35 @@ class Produk extends GT_Controller {
 			->set_output(json_encode($response));
 	}
 	/* API DATA */
-	public function api_data($vendor_name = null){
+	public function api_data($vendor_name = null)
+	{
 
 		$response = array(
-			'status' 	=> 'error', 
+			'status' 	=> 'error',
 			'message'	=> 'No Action Parameter'
 		);
 
-		$vendor_name = strtolower(str_replace("-","_",$vendor_name));
+		$vendor_name = strtolower(str_replace("-", "_", $vendor_name));
 		$this->load->model('master/Produk_model');
-		if( method_exists($this->Produk_model, $vendor_name) ){
+		if (method_exists($this->Produk_model, $vendor_name)) {
 			$params = $this->input->post(NULL, TRUE);
 
-			switch($vendor_name):
+			switch ($vendor_name):
 				case 'datatable':
 					$config = array(
 						'params' 	=> $params
 					);
-				break;
+					break;
 				case 'select2':
 				case 'select2_pemasok':
 					$config = array(
 						'row_per_page' 	=> 10,
 						'params' 		=> $params
 					);
-				break;
+					break;
 			endswitch;
 
 			$response 	= $this->Produk_model->{$vendor_name}($config);
-
 		}
 
 		$this->output
@@ -191,7 +196,8 @@ class Produk extends GT_Controller {
 			->set_output(json_encode($response));
 	}
 
-	public function barcode($pk){
+	public function barcode($pk)
+	{
 
 		$data = array(
 			'module' 	=> 'Generate Barcode',
@@ -202,13 +208,11 @@ class Produk extends GT_Controller {
 			'stylesheets'		=> array(
 				'assets/js/plugins/select2/css/select2-bootstrap4.min.css'
 			),
-			'heading' => array('title'=>'Generate Barcode')
+			'heading' => array('title' => 'Generate Barcode')
 		);
 
 		$foot = array(
-			'javascripts'	=> array(
-		
-			),
+			'javascripts'	=> array(),
 			'scripts' 		=> array(
 				$this->load->view($this->module['url'] . '/javascript/barcode', $data, TRUE)
 			)
@@ -218,11 +222,10 @@ class Produk extends GT_Controller {
 		$this->html_head($head);
 		$this->load->view($this->module['url'] . '/html/barcode', $data);
 		$this->html_foot($foot);
-		
-	
 	}
 
-	public function barcode_multiple(){
+	public function barcode_multiple()
+	{
 
 		$kode = $this->input->get('kode');
 		// $kode = 'aaaaaaaaaaa';
@@ -240,13 +243,11 @@ class Produk extends GT_Controller {
 			'stylesheets'		=> array(
 				'assets/js/plugins/select2/css/select2-bootstrap4.min.css'
 			),
-			'heading' => array('title'=>'Generate Barcode')
+			'heading' => array('title' => 'Generate Barcode')
 		);
 
 		$foot = array(
-			'javascripts'	=> array(
-		
-			),
+			'javascripts'	=> array(),
 			'scripts' 		=> array(
 				$this->load->view($this->module['url'] . '/javascript/barcode_multiple', $data, TRUE)
 			)
@@ -259,36 +260,34 @@ class Produk extends GT_Controller {
 		$this->html_foot($foot);
 	}
 
-	public function barcode_print(){
+	public function barcode_print()
+	{
 		$dompdf = new Dompdf\Dompdf;
 		$id = $this->input->get('id');
 		$tipe = $this->input->get('tipe');
-	
-		// print_r($kode);
-
-		if($tipe == 'single'){
+		if ($tipe == 'single') {
 
 			$data = array(
 				'module' 	=> 'Generate Barcode Single',
-				'barcode'		=> $this->Produk_model->single($id)
+				'barcode'		=> $this->Produk_model->single($id),
+				'cabang' => $_SESSION['user']
 			);
-	
+
 			$html = $this->load->view($this->module['url'] . '/html/barcode_print/single', $data, true);
-		}else{
+		} else {
 			$data = array(
 				'module' 	=> 'Generate Barcode Multiple',
-				'barcode'		=> $this->Produk_model->barcode($id)
+				'barcode'		=> $this->Produk_model->barcode($id),
+				'cabang' => $_SESSION['user']
 			);
 			$html = $this->load->view($this->module['url'] . '/html/barcode_print/multiple', $data, true);
 		}
-		// print_r($data['barcode']);
 		$dompdf->loadHtml($html);
-	
+
 		$dompdf->setPaper('A6', 'potrait');
 
 		$dompdf->render();
-		
+
 		$dompdf->stream('barcode_produk', array('Attachment' => 0));
 	}
-
 }
