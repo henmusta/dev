@@ -67,11 +67,10 @@ $(function(){
 			}
 				if (value !== '') {
 					delay(function(){
-					
 						$.ajax({
 							type: 'POST',
 							url : '<?= $module['url'];?>/api-data/get_kode_produk',
-							dataType 	: 'json',
+							dataType 	: ' json',
 							data: 'kode_produk=' + value,
 							success: function(response){   
 							
@@ -100,38 +99,16 @@ $(function(){
 		$("#qty, #harga").on("keyup change", function(e) {
 			let harga_new = new AutoNumeric('#harga',currenciesOptions);
 			let harga_total = harga_new.getNumber() * $("#qty").val();
-			// alert($("#qty").val());
 			total_harga.set(harga_total);
 		});
-		// $("#code_id_value").on("keyup change", function(e) {
-		// 	$('#barcode_form').modal('show');
-		// 	if(e.keyCode==13)
-		// 	{    
-		// 	console.log('Event keyUp on enter');
-		// 		var text=$('#text').val(); 
-		// 		$.ajax({
-				
-		// 			type:'POST',
-		// 			url:'insert_msg.php',
-		// 			data:{text:text},
 
-		// 			success:function(){    alert('hello');
-		// 				$('#scroll_msg').load('display_msg.php');
-		// 				$('#text').val('');
-		// 			} 
-		// 		});
-		// 	} 
-		// })
 		$('#barcode_form').on('hidden.bs.modal', function () {
 			$("#code_id_value").val('');
 			$("#nama_barang").val('');
 			$("#kode_barang").val('');
 			$("#harga").val('');
 		});
-		// $('#barcode_form').addEventListener('hidden.bs.modal', function (event) {
-		// 	// 
-		// 	alert("waw");
-        // });
+
 		$("#btnretur").on('click', function(){
 			$("#table-retur").attr("hidden",false);
 			$("#clsretur").attr("hidden",false);
@@ -215,7 +192,7 @@ $(function(){
 						results : data
 					};
 				}
-			}
+			} 
 		}).on({
 					'select2:select' : function(e){
 						let data = e.params.data;
@@ -286,6 +263,7 @@ $(function(){
 			billItems.set(billItemsAmount);
 			$('#table-payments').trigger('changeTotalPayment');
 		});
+		var count = 0;
 		const tableItems = $('#table-items').DataTable({
 			paging		: false,
 			searching 	: false,
@@ -433,9 +411,35 @@ $(function(){
 					$('#table-items').trigger('changeTotalItem');
 				});
 
+		
+
+
 				$(row).find('#id_'+ index).click(function(){
-					api.row($(this).closest("tr").get(0)).remove().draw();
+					var currentPage = tableItems.page();
+					count++;
+					tableItems.row.add({ id_produk : '', harga : 0, qty : 1, item_stok : 0, total : 0 }).draw();
+					//move added row to desired index (here the row we clicked on)
+					var index = tableItems.row(this).index(),
+						rowCount = tableItems.data().length-1,
+						insertedRow = tableItems.row(rowCount).data(),
+						tempRow;
+
+					for (var i=rowCount;i>index;i--) {
+						tempRow = tableItems.row(i-1).data();
+						tableItems.row(i).data(tempRow);
+						tableItems.row(i-1).data(insertedRow);
+					}     
+					//refresh the current page
+					tableItems.page(currentPage).draw(false);
 				});
+				
+				// $(row).find('#id_'+ index).click(function(){
+				// 	api.row($(this).closest("tr").get(0)).add({ id_produk : '', harga : 0, qty : 1, item_stok : 0, total : 0 }).draw();
+				// 	// api.row($(this).closest("tr").get(0)).add({ nama : '', harga : 0, qty_input : 0, qty_retur: 0, total_retur : 0 }).draw();
+				// });
+				// $(row).find('#id_'+ index).click(function(){
+				// 	api.row($(this).closest("tr").get(0)).remove().draw();
+				// });
 			},
 			drawCallback : function( settings ){
 				$('#table-items').trigger('changeTotalItem');
@@ -512,13 +516,6 @@ $(function(){
 				$(api.table().footer()).find('.btn-add-row').click(function(){
 					api.row.add({ nama : '', harga : 0, qty_input : 0, qty_retur: 0, total_retur : 0 }).draw();
 				});
-				// $(api.table().footer()).find('.btn-delete-row').click(function(){
-				// 	api.row( ':last' ).remove().draw();
-				// });
-
-				// $('#discountItems').keyup(function(){
-				// 	$('#table-retur').trigger('changeTotalItem');
-				// });
 			},
 			createdRow : function( row, data, index ){
 				new AutoNumeric.multiple($(row).find('[id^="item"]').get(),currenciesOptions);
